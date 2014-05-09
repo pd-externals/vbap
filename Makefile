@@ -1,4 +1,4 @@
-## Pd library template version 1.0.12
+## Pd library template version 1.0.14
 # For instructions on how to use this template, see:
 #  http://puredata.info/docs/developer/MakefileTemplate
 LIBRARY_NAME = vbap
@@ -13,10 +13,10 @@ SOURCES = vbap.c rvbap.c define_loudspeakers.c
 PDOBJECTS = 
 
 # example patches and related files, in the 'examples' subfolder
-EXAMPLES = graph-to-aziele.pd high.pd playsample~.pd recent.pd vbap-demo.pd vbap-level-config.pd vbapmodule.pd vbapsnd.pd rvbap-demo.pd vbap.main.pd
+EXAMPLES =  graph-to-aziele.pd high.pd playsample~.pd recent.pd vbap-demo.pd vbap-level-config.pd vbapmodule.pd vbapsnd.pd rvbap-demo.pd vbap.main.pd
 
 # manuals and related files, in the 'manual' subfolder
-MANUAL = 
+MANUAL =
 
 # if you want to include any other files in the source and binary tarballs,
 # list them here.  This can be anything from header files, test patches,
@@ -108,13 +108,19 @@ ifeq ($(UNAME),Darwin)
     ifeq ($(shell uname -r | sed 's|\([0-9][0-9]*\)\.[0-9][0-9]*\.[0-9][0-9]*|\1|'), 8)
       FAT_FLAGS = -arch ppc -arch i386 -mmacosx-version-min=10.4
     else
-      FAT_FLAGS = -arch ppc -arch i386 -arch x86_64 -mmacosx-version-min=10.4
       SOURCES += $(SOURCES_iphoneos)
+# Starting with Xcode 4.0, the PowerPC compiler is not installed by default
+      ifeq ($(wildcard /usr/llvm-gcc-4.2/libexec/gcc/powerpc*), )
+        FAT_FLAGS = -arch i386 -arch x86_64 -mmacosx-version-min=10.5
+      else
+        FAT_FLAGS = -arch ppc -arch i386 -arch x86_64 -mmacosx-version-min=10.4
+      endif
     endif
     ALL_CFLAGS += $(FAT_FLAGS) -fPIC -I/sw/include
     # if the 'pd' binary exists, check the linking against it to aid with stripping
     BUNDLE_LOADER = $(shell test ! -e $(PD_PATH)/bin/pd || echo -bundle_loader $(PD_PATH)/bin/pd)
-    ALL_LDFLAGS += $(FAT_FLAGS) -bundle $(BUNDLE_LOADER) -undefined dynamic_lookup -L/sw/lib
+    ALL_LDFLAGS += $(FAT_FLAGS) -headerpad_max_install_names -bundle $(BUNDLE_LOADER) \
+	-undefined dynamic_lookup -L/sw/lib
     SHARED_LDFLAGS += $(FAT_FLAGS) -dynamiclib -undefined dynamic_lookup \
 	-install_name @loader_path/$(SHARED_LIB) -compatibility_version 1 -current_version 1.0
     ALL_LIBS += -lc $(LIBS_macosx)
@@ -129,22 +135,32 @@ endif
 ifeq ($(UNAME),ANDROID)
   CPU := arm
   SOURCES += $(SOURCES_android)
-  EXTENSION = pd_linux
+  EXTENSION = so
   SHARED_EXTENSION = so
   OS = android
   PD_PATH = /usr
-  NDK_BASE := /usr/local/android-ndk
-  NDK_PLATFORM_VERSION := 5
-  NDK_SYSROOT=$(NDK_BASE)/platforms/android-$(NDK_PLATFORM_VERSION)/arch-arm
-  NDK_UNAME := $(shell uname -s | tr '[A-Z]' '[a-z]')
-  NDK_TOOLCHAIN_BASE=$(NDK_BASE)/toolchains/arm-linux-androideabi-4.4.3/prebuilt/$(NDK_UNAME)-x86
-  CC := $(NDK_TOOLCHAIN_BASE)/bin/arm-linux-androideabi-gcc --sysroot=$(NDK_SYSROOT)
+  NDK_BASE := /opt/android-ndk
+  NDK_PLATFORM_LEVEL ?= 5
+  NDK_ABI=arm
+  NDK_COMPILER_VERSION = 4.6
+  NDK_SYSROOT=$(NDK_BASE)/platforms/android-$(NDK_PLATFORM_LEVEL)/arch-$(NDK_ABI)
+  NDK_UNAME:=$(shell uname -s | tr '[A-Z]' '[a-z]')
+  ifeq ($(NDK_ABI),x86)
+    HOST = i686-linux-android
+    NDK_TOOLCHAIN = $(NDK_ABI)-$(NDK_COMPILER_VERSION)
+  else
+    HOST = $(NDK_ABI)-linux-androideabi
+    NDK_TOOLCHAIN = $(HOST)-$(NDK_COMPILER_VERSION)
+  endif
+  NDK_TOOLCHAIN_BASE=$(NDK_BASE)/toolchains/$(NDK_TOOLCHAIN)/prebuilt/$(NDK_UNAME)-$(NDK_PROCESSOR)
+  CC := $(NDK_TOOLCHAIN_BASE)/bin/$(HOST)-gcc --sysroot=$(NDK_SYSROOT)
+  LD := $(NDK_TOOLCHAIN_BASE)/bin/$(HOST)-ld
   OPT_CFLAGS = -O6 -funroll-loops -fomit-frame-pointer
   CFLAGS += 
   LDFLAGS += -rdynamic -shared
   SHARED_LDFLAGS += -Wl,-soname,$(SHARED_LIB) -shared
   LIBS += -lc $(LIBS_android)
-  STRIP := $(NDK_TOOLCHAIN_BASE)/bin/arm-linux-androideabi-strip \
+  STRIP := $(NDK_TOOLCHAIN_BASE)/bin/$(HOST)-strip) \
 	--strip-unneeded -R .note -R .comment
   DISTBINDIR=$(DISTDIR)-$(OS)-$(shell uname -m)
 endif
@@ -221,9 +237,10 @@ ifeq (MINGW,$(findstring MINGW,$(UNAME)))
   CC=gcc
   OPT_CFLAGS = -O3 -funroll-loops -fomit-frame-pointer
   ALL_CFLAGS += -mms-bitfields
-  ALL_LDFLAGS += -s -shared -Wl,--enable-auto-import -L"$(PD_PATH)/src" -L"$(PD_PATH)/bin" -L"$(PD_PATH)/obj"
+  ALL_LDFLAGS += -s -shared -Wl,--enable-auto-import
   SHARED_LDFLAGS += -shared
-  ALL_LIBS += -lpd -lwsock32 -lkernel32 -luser32 -lgdi32 $(LIBS_windows)
+  ALL_LIBS += -L"$(PD_PATH)/src" -L"$(PD_PATH)/bin" -L"$(PD_PATH)/obj" \
+	-lpd -lwsock32 -lkernel32 -luser32 -lgdi32 -liberty $(LIBS_windows)
   STRIP = strip --strip-unneeded -R .note -R .comment
   DISTBINDIR=$(DISTDIR)-$(OS)
 endif
@@ -237,7 +254,7 @@ ALL_LIBS := $(LIBS) $(ALL_LIBS)
 
 SHARED_SOURCE ?= $(wildcard lib$(LIBRARY_NAME).c)
 SHARED_HEADER ?= $(shell test ! -e $(LIBRARY_NAME).h || echo $(LIBRARY_NAME).h)
-SHARED_LIB = $(SHARED_SOURCE:.c=.$(SHARED_EXTENSION))
+SHARED_LIB ?= $(SHARED_SOURCE:.c=.$(SHARED_EXTENSION))
 SHARED_TCL_LIB = $(wildcard lib$(LIBRARY_NAME).tcl)
 
 .PHONY = install libdir_install single_install install-doc install-examples install-manual install-unittests clean distclean dist etags $(LIBRARY_NAME)
@@ -252,12 +269,13 @@ all: $(SOURCES:.c=.$(EXTENSION)) $(SHARED_LIB)
 	chmod a-x "$*.$(EXTENSION)"
 
 # this links everything into a single binary file
-$(LIBRARY_NAME): $(SOURCES:.c=.o) $(LIBRARY_NAME).o
-	$(CC) $(ALL_LDFLAGS) -o $(LIBRARY_NAME).$(EXTENSION) $(SOURCES:.c=.o) $(LIBRARY_NAME).o $(ALL_LIBS)
+$(LIBRARY_NAME): $(SOURCES:.c=.o) $(LIBRARY_NAME).o lib$(LIBRARY_NAME).o
+	$(CC) $(ALL_LDFLAGS) -o $(LIBRARY_NAME).$(EXTENSION) $(SOURCES:.c=.o) \
+		$(LIBRARY_NAME).o lib$(LIBRARY_NAME).o $(ALL_LIBS)
 	chmod a-x $(LIBRARY_NAME).$(EXTENSION)
 
 $(SHARED_LIB): $(SHARED_SOURCE:.c=.o)
-	$(CC) $(SHARED_LDFLAGS) -o $(SHARED_LIB) $(SHARED_SOURCE:.c=.o) $(LIBS)
+	$(CC) $(SHARED_LDFLAGS) -o $(SHARED_LIB) $(SHARED_SOURCE:.c=.o) $(ALL_LIBS)
 
 install: libdir_install
 
@@ -360,6 +378,8 @@ dist: $(DISTDIR)
 		$(INSTALL_DATA) $(ALLSOURCES)  $(DISTDIR)
 	test -z "$(strip $(wildcard $(ALLSOURCES:.c=.tcl)))" || \
 		$(INSTALL_DATA) $(wildcard $(ALLSOURCES:.c=.tcl))  $(DISTDIR)
+	test -z "$(strip $(wildcard $(LIBRARY_NAME).c))" || \
+		$(INSTALL_DATA) $(LIBRARY_NAME).c  $(DISTDIR)
 	test -z "$(strip $(SHARED_HEADER))" || \
 		$(INSTALL_DATA) $(SHARED_HEADER)  $(DISTDIR)
 	test -z "$(strip $(SHARED_SOURCE))" || \
@@ -399,9 +419,11 @@ dpkg-source:
 	rm -rf -- $(DISTDIR) $(ORIGDIR)
 	cd .. && dpkg-source -b $(LIBRARY_NAME)
 
-etags:
+etags: TAGS
+
+TAGS: $(wildcard $(PD_INCLUDE)/*.h) $(SOURCES) $(SHARED_SOURCE) $(SHARED_HEADER)
 	etags $(wildcard $(PD_INCLUDE)/*.h)
-	etags -a *.h $(SOURCES)
+	etags -a *.h $(SOURCES) $(SHARED_SOURCE) $(SHARED_HEADER)
 	etags -a --language=none --regex="/proc[ \t]+\([^ \t]+\)/\1/" *.tcl
 
 showsetup:
@@ -430,3 +452,6 @@ showsetup:
 	@echo "pkglibdir: $(pkglibdir)"
 	@echo "DISTDIR: $(DISTDIR)"
 	@echo "ORIGDIR: $(ORIGDIR)"
+	@echo "NDK_TOOLCHAIN: $(NDK_TOOLCHAIN)"
+	@echo "NDK_BASE: $(NDK_BASE)"
+	@echo "NDK_SYSROOT: $(NDK_SYSROOT)"
