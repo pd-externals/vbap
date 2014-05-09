@@ -327,7 +327,7 @@ static void vbap(t_float g[3], long ls[3], t_vbap *x)
  	 	} else new_cartdir[2] = 0;
  	 	cart_to_angle(new_cartdir,new_angle_dir);
  	 	x->x_azi = (new_angle_dir[0] );
-		post("[vbap] use azimuth %g",x->x_azi );
+		// post("[vbap] use azimuth %g",x->x_azi );
  	 	x->x_ele = (new_angle_dir[1]);
  	 }
   //}
