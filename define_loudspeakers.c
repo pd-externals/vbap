@@ -14,14 +14,14 @@ See copyright in file with name LICENSE.txt  */
 // If we are within VBAP (which includes define_loudspeakers), then don't create a main for define_loudspeakres
 void define_loudspeakers_setup(void)
 {
-	def_ls_class = class_new(gensym("define_loudspeakers"), (t_newmethod)def_ls_new, 0, (short)sizeof(t_def_ls), 0, A_GIMME, 0); 
+	def_ls_class = class_new(gensym("define_loudspeakers"), (t_newmethod)def_ls_new, 0, (short)sizeof(t_def_ls), 0, A_GIMME, 0);
 	/* def_ls_new = creation function, A_DEFLONG = its (optional) arguement is a long (32-bit) int */
 	
 	class_addbang(def_ls_class, (t_method)def_ls_bang);			/* the procedure it uses when it gets a bang in the left inlet */
 	class_addmethod(def_ls_class, (t_method)def_ls_read_directions, gensym("ls-directions"), A_GIMME, 0);	
 	class_addmethod(def_ls_class, (t_method)def_ls_read_triplets, gensym("ls-triplets"), A_GIMME, 0);
 
-	post(DFLS_VERSION);
+	logpost(NULL,1, DFLS_VERSION);
 }
 # else /* Max */
 void main(void)
@@ -177,6 +177,11 @@ static void ls_angles_to_cart(t_ls *ls)
 /* create new instance of object... MUST send it an int even if you do nothing with this int!! */
 static void *def_ls_new(t_symbol *s, int ac, Atom *av)	
 {
+    
+    
+    //post("def_ls_new: AC = %d", ac);
+    
+    
 	// s is object name (we ignore it)
 	t_def_ls *x = (t_def_ls *)newobject(def_ls_class);
 
@@ -195,6 +200,9 @@ static void *def_ls_new(t_symbol *s, int ac, Atom *av)
 void vbap_def_ls(t_def_ls *x, t_symbol *s, int ac, Atom *av)	
 {
 	initContent_ls_directions(x,ac,av); // Initialize object internal data from a ls-directions list
+
+    logpost(NULL,3, "vbap_def_ls:   %ld-D configuration with %ld speakers", x->x_def_ls_dimension, x->x_def_ls_amount );
+    
 	def_ls_bang(x); // calculate and send matrix to vbap
 }
 
@@ -205,7 +213,9 @@ static void initContent_ls_directions(t_def_ls *x,int ac,Atom*av)
 	
 	long d = 0;
 /*	if (av[0].a_type == A_LONG) d = av[0].a_w.w_long;
-	else */ if(av[0].a_type == A_FLOAT) d = (long)av[0].a_w.w_float;
+	else */
+    
+    if(av[0].a_type == A_FLOAT) d = (long)av[0].a_w.w_float;
 	else { error("define-loudspeakers: dimension NaN"); return; }
 
 	if (d==2 || d==3)
@@ -463,6 +473,9 @@ static void add_ldsp_triplet(int i, int j, int k, t_def_ls *x)
     trip_ptr = trip_ptr->next;
   }
   trip_ptr = (struct t_ls_set*) getbytes (sizeof (struct t_ls_set));
+
+    //post("add_ldsp_triplet getbytes:  %ld", sizeof (struct t_ls_set));
+    
   if(prev == NULL)
     x->x_ls_set = trip_ptr;
   else 
@@ -594,7 +607,10 @@ static void  calculate_3x3_matrixes(t_def_ls *x)
   t_float *invmx;
   //t_float *ptr;
   struct t_ls_set *tr_ptr = x->x_ls_set;
-  int triplet_amount = 0, /*ftable_size,*/i,pointer,list_length=0;
+  
+  unsigned long triplet_amount = 0, /*ftable_size,*/i,pointer,list_length=0; // zack
+   
+    
   Atom *at;
   t_ls *lss = x->x_ls;
   
@@ -613,7 +629,8 @@ static void  calculate_3x3_matrixes(t_def_ls *x)
   tr_ptr = x->x_ls_set;
   list_length= triplet_amount * 21 + 3;
   at= (Atom *) getbytes(list_length*sizeof(Atom));
-  
+
+
   SETLONG(&at[0], x->x_def_ls_dimension);
   SETLONG(&at[1], x->x_def_ls_amount);
   pointer=2;
@@ -656,11 +673,14 @@ static void  calculate_3x3_matrixes(t_def_ls *x)
     SETFLOAT(&at[pointer], lp2->z); pointer++;
     SETFLOAT(&at[pointer], lp3->z); pointer++;
  
+     
+      
     tr_ptr = tr_ptr->next;
   }
+    
 	sendLoudspeakerMatrices(x,list_length, at);
-//  outlet_anything(x->x_outlet0, gensym("loudspeaker-matrices"), list_length, at);
-  freebytes(at, list_length*sizeof(Atom));
+    
+   freebytes(at, list_length*sizeof(Atom));
 }
 
 
@@ -720,7 +740,8 @@ static void choose_ls_tuplets(t_def_ls *x)
   // Output
   list_length= amount * 10  + 2;
   at= (Atom *) getbytes(list_length*sizeof(Atom));
-  
+    //post("choose_ls_tuplets getbytes:  %ld", list_length*sizeof(Atom));
+
   SETLONG(&at[0], x->x_def_ls_dimension);
   SETLONG(&at[1], x->x_def_ls_amount);
   pointer=2;
@@ -755,7 +776,9 @@ static void choose_ls_tuplets(t_def_ls *x)
     	pointer++;
     }
   }
-	sendLoudspeakerMatrices(x,list_length, at);
+    //post("choose_ls_tuplets:  before call to sendLoudspeakerMatrices");
+
+    sendLoudspeakerMatrices(x,list_length, at);
   //outlet_anything(x->x_outlet0, gensym("loudspeaker-matrices"), list_length, at);
   freebytes(at, list_length*sizeof(Atom));
 }

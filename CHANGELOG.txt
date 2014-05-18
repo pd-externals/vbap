@@ -1,0 +1,5 @@
+from version 1.0.3.2 to version  1.0.3.3
+
+- changed vbap to allocate memory dynamically, to eliminate crash-producing memory overwrites when larger speaker configurations were defined (e.g. on OSX for speakers >  13 in 3D)
+- eliminated a post to the console reporting azimuth updates
+

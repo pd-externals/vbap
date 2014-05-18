@@ -10,21 +10,37 @@
 	#define M_PI        3.14159265358979323846264338327950288   /* pi */
 #endif
 
-#define MAX_LS_SETS 100			// maximum number of loudspeaker sets (triplets or pairs) allowed
-#define MAX_LS_AMOUNT 55    // maximum amount of loudspeakers, can be increased
+#ifdef PD
+    #define MAX_LS_SETS 745     // maximum number of loudspeaker sets (triplets or pairs) allowed -- allows for up to 44 speakers in 3D config
+//#define MAX_LS_SETS 100	// former maximum value, allowed for up to 13 speakers in 3D config
+//#define MAX_LS_SETS 571	// example: for up to 32 speakers in 3D config
+
+#else   // Max
+
+#define MAX_LS_SETS 100	 // maximum number of loudspeaker sets (triplets or pairs) allowed - This can crash when too many speakers are defined
+
+#endif
+
+#define MATRIX_DIM 9   // hard-coded matrx dimension for the algorithm
+#define SPEAKER_SET_DIM 3  // hard-coded speaker set dimension for the algorithm
+
+#define MAX_LS_AMOUNT 55    // maximum amount of loudspeakers, can be increased, but see comments next to MAX_LS_SETS above
 #define MIN_VOL_P_SIDE_LGTH 0.01  
 
-#define VBAP_VERSION "vbap - v1.0.3.2 - 20 Nov 2010 - (c) Ville Pulkki 1999-2006 (Pd port by HCS)"
+#define VBAP_VERSION "pdsheefa_vbap - v1.0.3.3 - 15 May 2014 - (c) Ville Pulkki 1999-2006 (Pd port by HCS, updated by ZS)"
 #define DFLS_VERSION "define_loudspeakers - v1.0.3.2 - 20 Nov 2010 - (c) Ville Pulkki 1999-2006"
 
 static t_float rad2ang = 360.0 / ( 2.0f * M_PI );
 static t_float atorad = (2.0f * M_PI) / 360.0f ;
 
 #ifdef VBAP_OBJECT
-	// We are inside vbap object, so sending matrix from define_loudspeakers is a simple call to the vbap receiver...
-	#define sendLoudspeakerMatrices(x,list_length, at) \
-					vbap_matrix(x, gensym("loudspeaker-matrices"),list_length, at); \
-					vbap_bang(x)
+
+//We are inside vbap object, so sending matrix from define_loudspeakers is a simple call to the vbap receiver...
+
+#define sendLoudspeakerMatrices(x,list_length, at) \
+ 					vbap_matrix(x, gensym("loudspeaker-matrices"),list_length, at); \
+ 					vbap_bang(x)
+
 #else
 	// We are inside define_loudspeaker object, send matrix to outlet
 	#define sendLoudspeakerMatrices(x,list_length, at) \
@@ -61,18 +77,31 @@ typedef struct t_ls_set
 		void *x_outlet1;				
 		void *x_outlet2;				
 		void *x_outlet3;				
-		void *x_outlet4;				
-		t_float x_set_inv_matx[MAX_LS_SETS][9];  // inverse matrice for each loudspeaker set
-		t_float x_set_matx[MAX_LS_SETS][9];      // matrice for each loudspeaker set
-		long x_lsset[MAX_LS_SETS][3];          // channel numbers of loudspeakers in each LS set 
+		void *x_outlet4;
+
 		long x_lsset_available;                // have loudspeaker sets been defined with define_loudspeakers
 		long x_lsset_amount;								   // amount of loudspeaker sets
-		long x_ls_amount;                      // amount of loudspeakers
+        long x_ls_amount;                      // amount of loudspeakers
 		long x_dimension;                      // 2 or 3
+        
 # ifdef PD
+        // memory for data sets is now allocated dynamically in each instance
+                        // WAS t_float x_set_inv_matx[MAX_LS_SETS][9];
+		t_float **x_set_inv_matx;  // inverse matrice for each loudspeaker set
+                          // WAS t_float x_set_matx[MAX_LS_SETS][9];
+        t_float **x_set_matx;     // matrice for each loudspeaker set
+		                // WAS long x_lsset[MAX_LS_SETS][3];
+ 		long **x_lsset;          // channel numbers of loudspeakers in each LS set
+
 		t_float x_spread;                      // speading amount of virtual source (0-100)
-# else /* Max */
-		long x_spread;                         // speading amount of virtual source (0-100)
+
+# else /* Max */        // memory allocation not tested for max, so it is allocated in the struct, as it was before
+
+        t_float x_set_inv_matx[MAX_LS_SETS][9];  // inverse matrice for each loudspeaker set
+        t_float x_set_matx[MAX_LS_SETS][9];      // matrice for each loudspeaker set
+		long x_lsset[MAX_LS_SETS][3];          // channel numbers of loudspeakers in each LS set
+        
+        long x_spread;                         // speading amount of virtual source (0-100)
 		double x_gain;                         // general gain control (0-2)
 # endif /* PD */
 		t_float x_spread_base[3];                // used to create uniform spreading
@@ -84,6 +113,7 @@ typedef struct t_ls_set
 		t_ls_set *x_ls_set;					// loudspeaker sets
 		long x_def_ls_amount;				// number of loudspeakers
 		long x_def_ls_dimension;		// 2 (horizontal arrays) or 3 (3d setups)
+        long x_ls_setCount;       // the number of Loudspeaker sets used for an instance's current loudspeaker configuration
 	} t_vbap;
 
 	// define loudspeaker data type...
