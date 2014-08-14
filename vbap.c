@@ -200,6 +200,8 @@ static int vbap_getmem(t_vbap *x, int lsSetCount )
 {
 
 #ifdef PD
+
+    int i;
     
     if ( x->x_ls_setCount ) vbap_free(x);
     
@@ -208,7 +210,7 @@ static int vbap_getmem(t_vbap *x, int lsSetCount )
     
     if(!x->x_set_inv_matx) {error("vbap_getmem: can't allocate additional %ld bytes", sizeof( t_float* ) * lsSetCount); return(0);}
     
-    for (int i = 0; i < lsSetCount; i++)
+    for (i = 0; i < lsSetCount; i++)
     {
         x->x_set_inv_matx[i] = getbytes( sizeof(t_float) * MATRIX_DIM );
         if(!x->x_set_inv_matx[i]) {error("vbap_getmem: can't allocate additional %ld bytes", sizeof(t_float) * MATRIX_DIM ); return(0);}
@@ -220,7 +222,7 @@ static int vbap_getmem(t_vbap *x, int lsSetCount )
 
     if(!x->x_set_matx) {error("vbap_getmem: can't allocate additional %ld bytes", sizeof( t_float* ) * lsSetCount); return(0);}
 
-    for (int i = 0; i < lsSetCount; i++)
+    for (i = 0; i < lsSetCount; i++)
     {
         x->x_set_matx[i] = getbytes( sizeof(t_float) * MATRIX_DIM );
         if(!x->x_set_matx[i]) {error("vbap_getmem: can't allocate additional %ld bytes", sizeof(t_float) * MATRIX_DIM ); return(0);}
@@ -232,7 +234,7 @@ static int vbap_getmem(t_vbap *x, int lsSetCount )
     
     if(!x->x_lsset) {error("vbap_getmem: can't allocate additional %ld bytes", sizeof( long * ) * lsSetCount); return(0);}
     
-    for (int i = 0; i < lsSetCount; i++)
+    for (i = 0; i < lsSetCount; i++)
     {
         x->x_lsset[i] = getbytes( sizeof( long ) * SPEAKER_SET_DIM );
         if(!x->x_lsset[i]) {error("vbap_getmem: can't allocate additional %ld bytes", sizeof(long) * SPEAKER_SET_DIM ); return(0);}
@@ -253,9 +255,11 @@ static int vbap_getmem(t_vbap *x, int lsSetCount )
 // free any allocated memory for instance
 static void vbap_free(t_vbap *x)
 {
+    int i;
+
     if (! x->x_ls_setCount) return;
     
-    for (int i = 0; i <  x->x_ls_setCount; i++)
+    for (i = 0; i <  x->x_ls_setCount; i++)
     {
         freebytes( x->x_set_inv_matx[i], (sizeof(t_float) * MATRIX_DIM ));    // = getbytes( sizeof(t_float) * MATRIX_DIM );
         freebytes( x->x_set_matx[i],  sizeof(t_float) * MATRIX_DIM);
@@ -265,7 +269,7 @@ static void vbap_free(t_vbap *x)
     freebytes(x->x_set_matx, sizeof( t_float* ) *  x->x_ls_setCount);
 
 
-    for (int i = 0; i <   x->x_ls_setCount; i++)
+    for (i = 0; i <   x->x_ls_setCount; i++)
     {
         freebytes(x->x_lsset[i], sizeof( long ) * SPEAKER_SET_DIM );
     }
@@ -653,7 +657,8 @@ static void vbap_bang(t_vbap *x)
 			final_gs[i]=0.0; 			
 		for(i=0;i<x->x_dimension;i++)
 		{
-			final_gs[ls[i]-1]=g[i];  
+			final_gs[ls[i]-1]=g[i];
+            //post("VBAP: PRE_SPREAD: %f", (t_float)final_gs[i]);
 		}
 		if(x->x_spread != 0)
 		{
@@ -662,7 +667,9 @@ static void vbap_bang(t_vbap *x)
 		for(i=0;i<x->x_ls_amount;i++) 
 		{
 #ifdef PD
-			SETFLOAT(&at[0], (t_float)i);	
+            
+
+            SETFLOAT(&at[0], (t_float)i);
 			SETFLOAT(&at[1], (t_float)final_gs[i]);
 			outlet_list(x->x_obj.ob_outlet, &s_list, 2, at);
 #else /* Max */

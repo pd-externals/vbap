@@ -608,7 +608,7 @@ static void  calculate_3x3_matrixes(t_def_ls *x)
   //t_float *ptr;
   struct t_ls_set *tr_ptr = x->x_ls_set;
   
-  unsigned long triplet_amount = 0, /*ftable_size,*/i,pointer,list_length=0; // zack
+  unsigned long triplet_amount = 0, /*ftable_size,*/i,pointer,list_length=0; 
    
     
   Atom *at;

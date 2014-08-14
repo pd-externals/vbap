@@ -11,8 +11,9 @@
 #endif
 
 #ifdef PD
+//                              Revised by Z. Settel to dynamically allocate memory
     #define MAX_LS_SETS 745     // maximum number of loudspeaker sets (triplets or pairs) allowed -- allows for up to 44 speakers in 3D config
-//#define MAX_LS_SETS 100	// former maximum value, allowed for up to 13 speakers in 3D config
+//#define MAX_LS_SETS 100	// former maximum value crashed for 3D speaker configurations with more than 13 speakers
 //#define MAX_LS_SETS 571	// example: for up to 32 speakers in 3D config
 
 #else   // Max
@@ -27,7 +28,7 @@
 #define MAX_LS_AMOUNT 55    // maximum amount of loudspeakers, can be increased, but see comments next to MAX_LS_SETS above
 #define MIN_VOL_P_SIDE_LGTH 0.01  
 
-#define VBAP_VERSION "pdsheefa_vbap - v1.0.3.3 - 15 May 2014 - (c) Ville Pulkki 1999-2006 (Pd port by HCS, updated by ZS)"
+#define VBAP_VERSION "vbap - v1.1 - 14 Aug. 2014 - (c) Ville Pulkki 1999-2006 (Pd port by HCS)"
 #define DFLS_VERSION "define_loudspeakers - v1.0.3.2 - 20 Nov 2010 - (c) Ville Pulkki 1999-2006"
 
 static t_float rad2ang = 360.0 / ( 2.0f * M_PI );
