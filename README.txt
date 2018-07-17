@@ -1,7 +1,7 @@
 
 A Pd port of the VBAP object for Max/MSP
 
-Written by Ville Pulkki
+Originally written by Ville Pulkki
 Helsinki University of Technology
 Laboratory of acoustics and audio signal processing
 
