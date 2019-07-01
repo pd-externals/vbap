@@ -8,6 +8,7 @@ Unversity of California at Berkeley
 See copyright in file with name LICENSE.txt  */
 
 #include "define_loudspeakers.h"
+#include <float.h>
 
 #ifndef VBAP_OBJECT
 # ifdef PD
@@ -555,8 +556,7 @@ static int lines_intersect(int i,int j,int k,int l,t_ls  lss[MAX_LS_AMOUNT])
   //t_float angle;
   t_float dist_ij,dist_kl,dist_iv3,dist_jv3,dist_inv3,dist_jnv3;
   t_float dist_kv3,dist_lv3,dist_knv3,dist_lnv3;
-  // TODO epsilon needs to be updated for 64-bit/double precision
-  t_float epsilon = 0.01; // lower precison a bit for floats, was 1e-9;
+  t_float epsilon = FLT_EPSILON;
 
   ls_cross_prod(lss[i],lss[j],&v1);
   ls_cross_prod(lss[k],lss[l],&v2);
