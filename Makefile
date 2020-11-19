@@ -13,6 +13,6 @@ datafiles = define_loudspeakers.h max2pd.h vbap.h \
             README.md LICENSE.txt CHANGELOG.txt \
             $(wildcard *.pd) $(wildcard examples/*.pd)
 
-# include Makefile.pdlibbuilder from submodule directory 'pd-lib-builder'
-PDLIBBUILDER_DIR=pd-lib-builder
+# include Makefile.pdlibbuilder, allow override using PDLIBBUILDER_DIR variable
+PDLIBBUILDER_DIR=.
 include $(PDLIBBUILDER_DIR)/Makefile.pdlibbuilder
