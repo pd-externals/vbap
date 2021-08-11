@@ -1,6 +1,6 @@
-#N canvas 90 22 726 609 10;
-#X obj 38 -190 testtools/unit-test-frame;
-#X text 383 -369 azimuth \, elevation \, spread and distance;
+#N canvas 90 51 726 609 10;
+#X obj 38 320 testtools/unit-test-frame;
+#X text 383 141 azimuth \, elevation \, spread and distance;
 #N canvas 0 22 450 300 tba 0;
 #X obj 143 51 inlet;
 #X obj 96 49 inlet;
@@ -27,25 +27,25 @@
 #X connect 11 1 6 0;
 #X connect 12 0 5 0;
 #X connect 12 1 7 0;
-#X restore 407 -341 pd tba;
-#X obj 342 -494 t b b b b;
-#X obj 446 -415 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
--1 -1;
-#X msg 407 -385 60;
-#X msg 446 -385 15;
-#X msg 524 -386 20;
-#X obj 38 -248 loadbang;
-#X obj 393 -440 vbap/define_loudspeakers 3 -45 0 45 0 0 45 180 45;
-#X obj 359 -307 vbap/rvbap 0 0;
-#X msg 485 -385 0;
-#X floatatom 379 -212 5 0 0 0 - - -;
-#X floatatom 399 -235 5 0 0 0 - - -;
-#X floatatom 419 -256 5 0 0 0 - - -;
-#X floatatom 440 -280 5 0 0 0 - - -;
-#X obj 359 -464 vbap/define_loudspeakers 3 -45 45 45 45 0 0 180 0;
-#X text 15 -474 In Pd-extended 0.42 \, [rvbap] crashes when using 2
-dimensional setup.;
-#X msg 38 -219 rvbap-unittest;
+#X restore 407 169 pd tba;
+#X obj 342 16 t b b b b;
+#X obj 446 95 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X msg 407 125 60;
+#X msg 446 125 15;
+#X msg 524 124 20;
+#X obj 38 262 loadbang;
+#X obj 393 70 vbap/define_loudspeakers 3 -45 0 45 0 0 45 180 45;
+#X obj 359 203 vbap/rvbap 0 0;
+#X msg 485 125 0;
+#X floatatom 379 298 5 0 0 0 - - -;
+#X floatatom 399 275 5 0 0 0 - - -;
+#X floatatom 419 254 5 0 0 0 - - -;
+#X floatatom 440 230 5 0 0 0 - - -;
+#X obj 359 46 vbap/define_loudspeakers 3 -45 45 45 45 0 0 180 0;
+#X text 15 36 In Pd-extended 0.42 \, [rvbap] crashes when using 2 dimensional
+setup.;
+#X msg 38 291 rvbap-unittest;
 #X connect 0 3 3 0;
 #X connect 2 0 10 0;
 #X connect 2 1 10 1;
