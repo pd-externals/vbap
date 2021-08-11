@@ -9,7 +9,7 @@
 
 #include "vbap.h"
 
-static t_class *def_ls_class;				/* so max can identify your object */
+static t_class *def_ls_class;  /* so max can identify your object */
 static void def_ls_bang(t_def_ls *x);
 //static void def_ls_int(t_def_ls *x, long n);
 static void def_ls_read_directions(t_def_ls *x, t_symbol *s, int ac, Atom *av);
