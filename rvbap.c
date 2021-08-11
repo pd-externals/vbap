@@ -684,6 +684,7 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
     long azi = x->x_azi, ele = x->x_ele;    // store original values
     t_float g[3];
     long ls[3];
+    (void)s;
 
     if(ac>0)
 #ifdef MAXMSP
@@ -868,6 +869,7 @@ static void *rvbap_new(t_symbol *s, int ac, t_atom *av)
 /* create new instance of object... MUST send it an int even if you do nothing with this int!! */
 {
     t_rvbap *x;
+    (void)s;
 #ifdef MAXMSP
     x = (t_rvbap *)newobject(rvbap_class);
 

@@ -92,6 +92,7 @@ static void def_ls_read_triplets(t_def_ls *x, t_symbol *s, int ac, Atom *av)
 // when loudspeaker triplets come in a message
 {
 	t_ls_set *trip_ptr,  *tmp_ptr;
+    (void)s;
 	if(x->x_ls_read == 0)
 	{
 		error("define_loudspeakers: Define loudspeaker directions first!");
@@ -146,6 +147,7 @@ static void def_ls_read_triplets(t_def_ls *x, t_symbol *s, int ac, Atom *av)
 static void def_ls_read_directions(t_def_ls *x, t_symbol *s, int ac, Atom *av)
 // when loudspeaker directions come in a message
 {
+    (void)s;
 	if (x->x_ls_read)
 	{
             // Remove old matrices
@@ -177,7 +179,7 @@ static void ls_angles_to_cart(t_ls *ls)
 /* create new instance of object... MUST send it an int even if you do nothing with this int!! */
 static void *def_ls_new(t_symbol *s, int ac, Atom *av)
 {
-
+    (void)s;
 
         //post("def_ls_new: AC = %d", ac);
 
@@ -199,6 +201,7 @@ static void *def_ls_new(t_symbol *s, int ac, Atom *av)
 /* define-loudspeakers message integrated into vbap object */
 void vbap_def_ls(t_def_ls *x, t_symbol *s, int ac, Atom *av)
 {
+    (void)s;
 	initContent_ls_directions(x,ac,av); // Initialize object internal data from a ls-directions list
 
         //logpost(NULL,3, "vbap_def_ls:   %ld-D configuration with %ld speakers", x->x_def_ls_dimension, x->x_def_ls_amount );
