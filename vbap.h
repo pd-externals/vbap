@@ -2,8 +2,6 @@
 #define VBAP_H
 
 #include <math.h>
-#include "m_pd.h"
-#include "max2pd.h"
 
 #ifndef M_PI
     // don't know where it is in win32, so add it here
@@ -11,6 +9,9 @@
 #endif
 
 #ifdef PD
+#include "m_pd.h"
+#include "max2pd.h"
+
 // Revised by Z. Settel to dynamically allocate memory
 # define MAX_LS_SETS 745 // maximum number of loudspeaker sets (triplets or pairs) allowed -- allows for up to 44 speakers in 3D config
 //#define MAX_LS_SETS 100 // former maximum value crashed for 3D speaker configurations with more than 13 speakers
