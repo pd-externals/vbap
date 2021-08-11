@@ -7,77 +7,77 @@
    and written by Olaf Matthes 2003, 2007
    Pd port by Frank Barknecht
 
-   See copyright in file with name LICENSE.txt  */
+   See copyright in file with name LICENSE.txt */
 
 
 #include <math.h>
 
 #ifdef MAXMSP
-#include "ext.h"                /* you must include this - it contains the external object's link to max */
+#include "ext.h" /* you must include this - it contains the external object's link to max */
 #define t_float float
 #endif
 
 #ifdef PD
-#include "m_pd.h"               /* you must include this - it contains the external object's link to pure data */
+#include "m_pd.h" /* you must include this - it contains the external object's link to pure data */
 #endif
 
 #define RVBAP_VERSION "rvbap v1.2 - (c) Olaf Matthes 2003-2007, based on vbap by Ville Pulkki"
 
-#define MAX_LS_SETS 100         // maximum number of loudspeaker sets (triplets or pairs) allowed
-#define MAX_LS_AMOUNT 55        // maximum amount of loudspeakers, can be increased
+#define MAX_LS_SETS 100 // maximum number of loudspeaker sets (triplets or pairs) allowed
+#define MAX_LS_AMOUNT 55 // maximum amount of loudspeakers, can be increased
 
 #ifdef _WINDOWS
 #define sqrtf sqrt
 #endif
 
 #ifdef MAXMSP
-typedef struct vbap             /* This defines the object as an entity made up of other things */
+typedef struct vbap /* This defines the object as an entity made up of other things */
 {
     t_object x_ob;
-    long x_azi;     // panning direction azimuth
-    long x_ele;     // panning direction elevation
-    t_float x_dist; // sound source distance    (1.0-infinity)
-    void *x_outlet0;                /* outlet creation - inlets are automatic */
+    long x_azi; // panning direction azimuth
+    long x_ele; // panning direction elevation
+    t_float x_dist; // sound source distance (1.0-infinity)
+    void *x_outlet0; /* outlet creation - inlets are automatic */
     void *x_outlet1;
     void *x_outlet2;
     void *x_outlet3;
     void *x_outlet4;
     t_float x_set_inv_matx[MAX_LS_SETS][9];// inverse matrice for each loudspeaker set
-    t_float x_set_matx[MAX_LS_SETS][9];    // matrice for each loudspeaker set
-    long x_lsset[MAX_LS_SETS][3];          // channel numbers of loudspeakers in each LS set
-    long x_lsset_available;                // have loudspeaker sets been defined with define_loudspeakers
-    long x_lsset_amount;                   // amount of loudspeaker sets
-    long x_ls_amount;                      // amount of loudspeakers
-    long x_dimension;                      // 2 or 3
-    long x_spread;                         // speading amount of virtual source (0-100)
-    t_float x_spread_base[3];              // used to create uniform spreading
-    t_float x_reverb_gs[MAX_LS_SETS];      // correction value for each loudspeaker set to get equal volume
+    t_float x_set_matx[MAX_LS_SETS][9]; // matrice for each loudspeaker set
+    long x_lsset[MAX_LS_SETS][3]; // channel numbers of loudspeakers in each LS set
+    long x_lsset_available; // have loudspeaker sets been defined with define_loudspeakers
+    long x_lsset_amount; // amount of loudspeaker sets
+    long x_ls_amount; // amount of loudspeakers
+    long x_dimension; // 2 or 3
+    long x_spread; // speading amount of virtual source (0-100)
+    t_float x_spread_base[3]; // used to create uniform spreading
+    t_float x_reverb_gs[MAX_LS_SETS]; // correction value for each loudspeaker set to get equal volume
 } t_rvbap;
 #endif
 
 
 #ifdef PD
-typedef struct vbap             /* This defines the object as an entity made up of other things */
+typedef struct vbap /* This defines the object as an entity made up of other things */
 {
     t_object x_ob;
-    t_float x_azi;  // panning direction azimuth
-    t_float x_ele;  // panning direction elevation
-    t_float x_dist; // sound source distance    (1.0-infinity)
-    void *x_outlet0;                /* outlet creation - inlets are automatic */
+    t_float x_azi; // panning direction azimuth
+    t_float x_ele; // panning direction elevation
+    t_float x_dist; // sound source distance (1.0-infinity)
+    void *x_outlet0; /* outlet creation - inlets are automatic */
     void *x_outlet1;
     void *x_outlet2;
     void *x_outlet3;
     void *x_outlet4;
     t_float x_set_inv_matx[MAX_LS_SETS][9];// inverse matrice for each loudspeaker set
-    t_float x_set_matx[MAX_LS_SETS][9];    // matrice for each loudspeaker set
-    long x_lsset[MAX_LS_SETS][3];          // channel numbers of loudspeakers in each LS set
-    long x_lsset_available;                // have loudspeaker sets been defined with define_loudspeakers
-    long x_lsset_amount;                   // amount of loudspeaker sets
-    long x_ls_amount;                      // amount of loudspeakers
-    long x_dimension;                      // 2 or 3
-    t_float x_spread;                      // speading amount of virtual source (0-100)
-    t_float x_spread_base[3];              // used to create uniform spreading
-    t_float x_reverb_gs[MAX_LS_SETS];      // correction value for each loudspeaker set to get equal volume
+    t_float x_set_matx[MAX_LS_SETS][9]; // matrice for each loudspeaker set
+    long x_lsset[MAX_LS_SETS][3]; // channel numbers of loudspeakers in each LS set
+    long x_lsset_available; // have loudspeaker sets been defined with define_loudspeakers
+    long x_lsset_amount; // amount of loudspeaker sets
+    long x_ls_amount; // amount of loudspeakers
+    long x_dimension; // 2 or 3
+    t_float x_spread; // speading amount of virtual source (0-100)
+    t_float x_spread_base[3]; // used to create uniform spreading
+    t_float x_reverb_gs[MAX_LS_SETS]; // correction value for each loudspeaker set to get equal volume
 } t_rvbap;
 #endif
 
@@ -130,13 +130,13 @@ int main(void)
     setup((t_messlist **)&rvbap_class, (method)rvbap_new, 0L, (short)sizeof(t_rvbap), 0L, A_GIMME, 0);
         /* rvbap_new = creation function, A_DEFLONG = its (optional) arguement is a long (32-bit) int */
     addmess((method)rvbap_assist, "assist", A_CANT, 0);
-    addbang((method)rvbap_bang);         /* the procedure it uses when it gets a bang in the left inlet */
-    addinx((method)rvbap_in1, 1);        /* the rocedure for an int in the right inlet (inlet 1) */
-    addinx((method)rvbap_in2, 2);        /* the rocedure for an int in the right inlet (inlet 2) */
+    addbang((method)rvbap_bang); /* the procedure it uses when it gets a bang in the left inlet */
+    addinx((method)rvbap_in1, 1); /* the rocedure for an int in the right inlet (inlet 1) */
+    addinx((method)rvbap_in2, 2); /* the rocedure for an int in the right inlet (inlet 2) */
     addinx((method)rvbap_in3, 3);
     addinx((method)rvbap_in4, 4);
-    addftx((method)rvbap_ft1, 1);        /* the rocedure for an int in the right inlet (inlet 1) */
-    addftx((method)rvbap_ft2, 2);        /* the rocedure for an int in the right inlet (inlet 2) */
+    addftx((method)rvbap_ft1, 1); /* the rocedure for an int in the right inlet (inlet 1) */
+    addftx((method)rvbap_ft2, 2); /* the rocedure for an int in the right inlet (inlet 2) */
     addftx((method)rvbap_ft3, 3);
     addftx((method)rvbap_ft4, 4);
     addmess((method)rvbap_matrix, "loudspeaker-matrices", A_GIMME, 0);
@@ -203,7 +203,7 @@ static void cart_to_angle(t_float cvec[3], t_float avec[3])
 // converts cartesian coordinates to angular
 {
     t_float atorad = (t_float)(2.0 * 3.141592653589793 / 360.0) ;
-    t_float pi =  (t_float)3.141592653589793;
+    t_float pi = (t_float)3.141592653589793;
     t_float dist, atan_y_per_x, atan_x_pl_y_per_z;
     t_float azi, ele;
 
@@ -269,8 +269,8 @@ static void vbap(t_float g[3], long ls[3], t_rvbap *x)
         // it means that the virtual source does not lie in that LS set.
 
     angle_to_cart(x->x_azi,x->x_ele,cartdir);
-    big_sm_g = -100000.0;   // initial value for largest minimum gain value
-    best_neg_g_am=3;        // how many negative values in this set
+    big_sm_g = -100000.0; // initial value for largest minimum gain value
+    best_neg_g_am=3; // how many negative values in this set
 
 
     for(i=0;i<x->x_lsset_amount;i++){
@@ -302,7 +302,7 @@ static void vbap(t_float g[3], long ls[3], t_rvbap *x)
     }
 
         // If chosen set produced a negative value, make it zero and
-        // calculate direction that corresponds  to these new
+        // calculate direction that corresponds to these new
         // gain values. This happens when the virtual source is outside of
         // all loudspeaker sets.
 
@@ -314,13 +314,13 @@ static void vbap(t_float g[3], long ls[3], t_rvbap *x)
                 gains_modified=1;
             }
         if(gains_modified==1){
-            new_cartdir[0] =  x->x_set_matx[winner_set][0] * g[0]
+            new_cartdir[0] = x->x_set_matx[winner_set][0] * g[0]
                 + x->x_set_matx[winner_set][1] * g[1]
                 + x->x_set_matx[winner_set][2] * g[2];
-            new_cartdir[1] =  x->x_set_matx[winner_set][3] * g[0]
+            new_cartdir[1] = x->x_set_matx[winner_set][3] * g[0]
                 + x->x_set_matx[winner_set][4] * g[1]
                 + x->x_set_matx[winner_set][5] * g[2];
-            new_cartdir[2] =  x->x_set_matx[winner_set][6] * g[0]
+            new_cartdir[2] = x->x_set_matx[winner_set][6] * g[0]
                 + x->x_set_matx[winner_set][7] * g[1]
                 + x->x_set_matx[winner_set][8] * g[2];
             cart_to_angle(new_cartdir,new_angle_dir);
@@ -492,22 +492,22 @@ static void spread_it(t_rvbap *x, t_float *final_gs)
         cross_prod(spreadbase[2], vscartdir, spreadbase[3]);
 
             // four between them
-        for(i=0;i<3;i++) spreadbase[4][i] =  (x->x_spread_base[i] + spreadbase[1][i]) / 2.0;
-        for(i=0;i<3;i++) spreadbase[5][i] =  (spreadbase[1][i] + spreadbase[2][i]) / 2.0;
-        for(i=0;i<3;i++) spreadbase[6][i] =  (spreadbase[2][i] + spreadbase[3][i]) / 2.0;
-        for(i=0;i<3;i++) spreadbase[7][i] =  (spreadbase[3][i] + x->x_spread_base[i]) / 2.0;
+        for(i=0;i<3;i++) spreadbase[4][i] = (x->x_spread_base[i] + spreadbase[1][i]) / 2.0;
+        for(i=0;i<3;i++) spreadbase[5][i] = (spreadbase[1][i] + spreadbase[2][i]) / 2.0;
+        for(i=0;i<3;i++) spreadbase[6][i] = (spreadbase[2][i] + spreadbase[3][i]) / 2.0;
+        for(i=0;i<3;i++) spreadbase[7][i] = (spreadbase[3][i] + x->x_spread_base[i]) / 2.0;
 
             // four at half spreadangle
-        for(i=0;i<3;i++) spreadbase[8][i] =  (vscartdir[i] + x->x_spread_base[i]) / 2.0;
-        for(i=0;i<3;i++) spreadbase[9][i] =  (vscartdir[i] + spreadbase[1][i]) / 2.0;
-        for(i=0;i<3;i++) spreadbase[10][i] =  (vscartdir[i] + spreadbase[2][i]) / 2.0;
-        for(i=0;i<3;i++) spreadbase[11][i] =  (vscartdir[i] + spreadbase[3][i]) / 2.0;
+        for(i=0;i<3;i++) spreadbase[8][i] = (vscartdir[i] + x->x_spread_base[i]) / 2.0;
+        for(i=0;i<3;i++) spreadbase[9][i] = (vscartdir[i] + spreadbase[1][i]) / 2.0;
+        for(i=0;i<3;i++) spreadbase[10][i] = (vscartdir[i] + spreadbase[2][i]) / 2.0;
+        for(i=0;i<3;i++) spreadbase[11][i] = (vscartdir[i] + spreadbase[3][i]) / 2.0;
 
             // four at quarter spreadangle
-        for(i=0;i<3;i++) spreadbase[12][i] =  (vscartdir[i] + spreadbase[8][i]) / 2.0;
-        for(i=0;i<3;i++) spreadbase[13][i] =  (vscartdir[i] + spreadbase[9][i]) / 2.0;
-        for(i=0;i<3;i++) spreadbase[14][i] =  (vscartdir[i] + spreadbase[10][i]) / 2.0;
-        for(i=0;i<3;i++) spreadbase[15][i] =  (vscartdir[i] + spreadbase[11][i]) / 2.0;
+        for(i=0;i<3;i++) spreadbase[12][i] = (vscartdir[i] + spreadbase[8][i]) / 2.0;
+        for(i=0;i<3;i++) spreadbase[13][i] = (vscartdir[i] + spreadbase[9][i]) / 2.0;
+        for(i=0;i<3;i++) spreadbase[14][i] = (vscartdir[i] + spreadbase[10][i]) / 2.0;
+        for(i=0;i<3;i++) spreadbase[15][i] = (vscartdir[i] + spreadbase[11][i]) / 2.0;
 
         additive_vbap(final_gs,spreaddir[0],x);
         for(i=1;i<spreaddirnum;i++){
@@ -643,12 +643,12 @@ static void rvbap_bang(t_rvbap *x)
                 // second, we output the gains for the reverberated signals
                 // these are made up of a global (all speakers) and a local part
 #ifdef MAXMSP
-            SETLONG(&at[0], i+x->x_ls_amount);  // direct signals come first in matrix~
+            SETLONG(&at[0], i+x->x_ls_amount); // direct signals come first in matrix~
             SETFLOAT(&at[1], (((oversqrtdist / x->x_dist) * x->x_reverb_gs[i]) + (oversqrtdist * (1 - overdist) * final_gs[i])));
             outlet_list(x->x_outlet0, NULL, 2, at);
 #endif
 #ifdef PD
-            SETFLOAT(&at[0], (i+x->x_ls_amount));   // direct signals come first in matrix~
+            SETFLOAT(&at[0], (i+x->x_ls_amount)); // direct signals come first in matrix~
             SETFLOAT(&at[1], (((oversqrtdist / x->x_dist) * x->x_reverb_gs[i]) + (oversqrtdist * (1 - overdist) * final_gs[i])));
             outlet_list(x->x_outlet0, gensym("list"), 2, at);
 #endif
@@ -682,7 +682,7 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
     long datapointer=0;
     long setpointer=0;
     long i;
-    long azi = x->x_azi, ele = x->x_ele;    // store original values
+    long azi = x->x_azi, ele = x->x_ele; // store original values
     t_float g[3];
     long ls[3];
     (void)s;
@@ -786,81 +786,81 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
     }
     equal_reverb(x,x->x_reverb_gs);
 
-/*  for(i=0; i<x->x_ls_amount; i++) // do this for every speaker
+/* for(i=0; i<x->x_ls_amount; i++) // do this for every speaker
     {
     post("reverb gs #%d = %f", i, x->x_reverb_gs[i]);
-    }   */
+    } */
     post("rvbap: Loudspeaker setup configured!");
-    x->x_azi = azi;     // restore original panning directions
+    x->x_azi = azi; // restore original panning directions
     x->x_ele = ele;
 }
 
 #ifdef MAXMSP
-static void rvbap_in1(t_rvbap *x, long n)                /* x = the instance of the object, n = the int received in the right inlet */
+static void rvbap_in1(t_rvbap *x, long n) /* x = the instance of the object, n = the int received in the right inlet */
 // panning angle azimuth
 {
-    x->x_azi = n;                           /* store n in a global variable */
+    x->x_azi = n; /* store n in a global variable */
 
 }
 
-static void rvbap_in2(t_rvbap *x, long n)                /* x = the instance of the object, n = the int received in the right inlet */
+static void rvbap_in2(t_rvbap *x, long n) /* x = the instance of the object, n = the int received in the right inlet */
 // panning angle elevation
 {
-    x->x_ele = n;                           /* store n in a global variable */
+    x->x_ele = n; /* store n in a global variable */
 
 }
 /*--------------------------------------------------------------------------*/
 
-static void rvbap_in3(t_rvbap *x, long n)                /* x = the instance of the object, n = the int received in the right inlet */
+static void rvbap_in3(t_rvbap *x, long n) /* x = the instance of the object, n = the int received in the right inlet */
 // spread amount
 {
     if (n<0) n = 0;
     if (n>100) n = 100;
-    x->x_spread = n;                            /* store n in a global variable */
+    x->x_spread = n; /* store n in a global variable */
 
 }
 
 /*--------------------------------------------------------------------------*/
 
-static void rvbap_in4(t_rvbap *x, long n)                /* x = the instance of the object, n = the int received in the right inlet */
+static void rvbap_in4(t_rvbap *x, long n) /* x = the instance of the object, n = the int received in the right inlet */
 // distance
 {
     if (n<1) n = 1;
-    x->x_dist = (t_float)n;                           /* store n in a global variable */
+    x->x_dist = (t_float)n; /* store n in a global variable */
 
 }
 
-static void rvbap_ft1(t_rvbap *x, double n)              /* x = the instance of the object, n = the int received in the right inlet */
+static void rvbap_ft1(t_rvbap *x, double n) /* x = the instance of the object, n = the int received in the right inlet */
 // panning angle azimuth
 {
-    x->x_azi = (long) n;                            /* store n in a global variable */
+    x->x_azi = (long) n; /* store n in a global variable */
 
 }
 
-static void rvbap_ft2(t_rvbap *x, double n)              /* x = the instance of the object, n = the int received in the right inlet */
+static void rvbap_ft2(t_rvbap *x, double n) /* x = the instance of the object, n = the int received in the right inlet */
 // panning angle elevation
 {
-    x->x_ele = (long) n;                           /* store n in a global variable */
+    x->x_ele = (long) n; /* store n in a global variable */
 
 }
 /*--------------------------------------------------------------------------*/
 
-static void rvbap_ft3(t_rvbap *x, double n)              /* x = the instance of the object, n = the int received in the right inlet */
+static void rvbap_ft3(t_rvbap *x, double n) /* x = the instance of the object, n = the int received in the right inlet */
 // spreading
 {
     if (n<0.0) n = 0.0;
     if (n>100.0) n = 100.0;
-    x->x_spread = (long) n;                         /* store n in a global variable */
+    x->x_spread = (long) n; /* store n in a global variable */
 
 }
 
 /*--------------------------------------------------------------------------*/
 
-static void rvbap_ft4(t_rvbap *x, double n)              /* x = the instance of the object, n = the int received in the right inlet */
+static void rvbap_ft4(t_rvbap *x, double n) /* x = the instance of the object, n = the int received in the right inlet */
 // distance
 {
     if (n<1.0) n = 1.0;
-    x->x_dist = (t_float)n;                           /* store n in a global variable */
+    x->x_dist = (t_float)n; /* store n in a global variable */
 }
 
 
@@ -874,15 +874,15 @@ static void *rvbap_new(t_symbol *s, int ac, t_atom *av)
 #ifdef MAXMSP
     x = (t_rvbap *)newobject(rvbap_class);
 
-    t_floatin(x,4);       /* takes the distance */
+    t_floatin(x,4); /* takes the distance */
     intin(x,3);
-    intin(x,2);                 /* create a second (int) inlet... remember right-to-left ordering in Max */
-    intin(x,1);                 /* create a second (int) inlet... remember right-to-left ordering in Max */
+    intin(x,2); /* create a second (int) inlet... remember right-to-left ordering in Max */
+    intin(x,1); /* create a second (int) inlet... remember right-to-left ordering in Max */
     x->x_outlet4 = floatout(x); /* distance */
     x->x_outlet3 = intout(x);
-    x->x_outlet2 = intout(x);   /* create an (int) outlet  - rightmost outlet first... */
-    x->x_outlet1 = intout(x);   /* create an (int) outlet */
-    x->x_outlet0 = listout(x);  /* create a (list) outlet */
+    x->x_outlet2 = intout(x); /* create an (int) outlet  - rightmost outlet first... */
+    x->x_outlet1 = intout(x); /* create an (int) outlet */
+    x->x_outlet0 = listout(x); /* create a (list) outlet */
 #endif
 #ifdef PD
     x = (t_rvbap *)pd_new(rvbap_class);
@@ -933,5 +933,5 @@ static void *rvbap_new(t_symbol *s, int ac, t_atom *av)
             if (av[2].a_type == A_FLOAT)
                 x->x_dist = av[2].a_w.w_float;
     }
-    return(x);                  /* return a reference to the object instance */
+    return(x); /* return a reference to the object instance */
 }
