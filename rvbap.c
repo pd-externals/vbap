@@ -614,6 +614,12 @@ static void rvbap_bang(t_rvbap *x)
     long i;
     t_float *final_gs, overdist, oversqrtdist;
     final_gs = (t_float *) getbytes(x->x_ls_amount * sizeof(t_float));
+
+#ifdef PD
+    // avoid NaN explosions, MAX does this in rvbap_in4() && rvbap_ft4()
+    if (x->x_dist < 1.0) {x->x_dist = 1.0;}
+#endif
+
     if(x->x_lsset_available ==1){
         vbap(g, ls, x);
         for(i=0;i<x->x_ls_amount;i++)

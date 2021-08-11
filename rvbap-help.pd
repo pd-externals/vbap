@@ -225,7 +225,7 @@ with [matrix~] or [mtx_*~] from the IEMmatrix collection of externals.
 and vbap will output gain-factors for each speaker and the actual location
 produced. This can be different from the desired one depending where
 your speakers are.;
-#X text 428 618 See rvbap-demo.pd for a more complex setup.;
+#X text 428 618 See examples/rvbap-demo.pd for a more complex setup.;
 #X text 429 491 To use it \, create a [mtx_*~] object that has double
 the amount of outlets as you have speakers. Send the first half of
 the matrix-signals to the speakers and the second half through a reverbarator
