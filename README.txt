@@ -2,8 +2,8 @@
 
 A Pure Data port of the VBAP object for Max/MSP
 
-Originally written by Ville Pulkki  
-Helsinki University of Technology  
+Originally written by Ville Pulkki
+Helsinki University of Technology
 Laboratory of Acoustics and Audio Signal Processing
 
 http://www.acoustics.hut.fi/research/cat/vbap/
