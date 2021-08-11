@@ -91,7 +91,7 @@ static void def_ls_bang(t_def_ls *x)						/* x = reference to this instance of t
 static void def_ls_read_triplets(t_def_ls *x, t_symbol *s, int ac, Atom *av)
 // when loudspeaker triplets come in a message
 {
-	t_ls_set *trip_ptr,  *tmp_ptr, *prev;
+	t_ls_set *trip_ptr,  *tmp_ptr;
 	if(x->x_ls_read == 0)
 	{
 		error("define_loudspeakers: Define loudspeaker directions first!");
@@ -105,7 +105,6 @@ static void def_ls_read_triplets(t_def_ls *x, t_symbol *s, int ac, Atom *av)
 	}
 
  	trip_ptr = x->x_ls_set;
-	prev = NULL;
 	while (trip_ptr != NULL)
 	{
 		tmp_ptr = trip_ptr;

@@ -202,10 +202,8 @@ static void angle_to_cart(long azi, long ele, t_float res[3])
 static void cart_to_angle(t_float cvec[3], t_float avec[3])
 // converts cartesian coordinates to angular
 {
-    t_float tmp, tmp2, tmp3, tmp4;
     t_float atorad = (t_float)(2.0 * 3.141592653589793 / 360.0) ;
     t_float pi =  (t_float)3.141592653589793;
-    t_float power;
     t_float dist, atan_y_per_x, atan_x_pl_y_per_z;
     t_float azi, ele;
 
@@ -360,9 +358,6 @@ static void additive_vbap(t_float *final_gs, t_float cartdir[3], t_rvbap *x)
     int i,j,k, gains_modified;
     t_float small_g;
     t_float big_sm_g, gtmp[3];
-    long winner_set;
-    t_float new_cartdir[3];
-    t_float new_angle_dir[3];
     long dim = x->x_dimension;
     long neg_g_am, best_neg_g_am;
     t_float g[3];
@@ -386,7 +381,6 @@ static void additive_vbap(t_float *final_gs, t_float cartdir[3], t_rvbap *x)
         if(small_g > big_sm_g && neg_g_am <= best_neg_g_am){
             big_sm_g = small_g;
             best_neg_g_am = neg_g_am;
-            winner_set=i;
             g[0]=gtmp[0]; g[1]=gtmp[1];
             ls[0]= x->x_lsset[i][0]; ls[1]= x->x_lsset[i][1];
             if(dim==3){
@@ -557,9 +551,7 @@ static void equal_reverb(t_rvbap *x, t_float *final_gs)
 // that is everywhere, i.e. present in all directions
 
 {
-    t_float vscartdir[3];
     t_float spreaddir[16][3];
-    t_float spreadbase[16][3];
     long i, spreaddirnum;
     t_float power;
     if(x->x_dimension == 3){
@@ -689,7 +681,6 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
     long datapointer=0;
     long setpointer=0;
     long i;
-    long deb=0;
     long azi = x->x_azi, ele = x->x_ele;    // store original values
     t_float g[3];
     long ls[3];
