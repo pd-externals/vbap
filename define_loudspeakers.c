@@ -261,10 +261,10 @@ static void initContent_ls_directions(t_def_ls *x,int ac,Atom*av)
 
 	if(x->x_ls_read == 1)
 	{
-        int i;
-		for(i=0;i<x->x_def_ls_amount;i++)
+        int j;
+        for(j=0;j<x->x_def_ls_amount;j++)
 		{
-			ls_angles_to_cart(&x->x_ls[i]);
+			ls_angles_to_cart(&x->x_ls[j]);
 		}
 	}
 	x->x_triplets_specified=0;
