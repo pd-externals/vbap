@@ -141,7 +141,7 @@ int main(void)
     addftx((method)rvbap_ft4, 4);
     addmess((method)rvbap_matrix, "loudspeaker-matrices", A_GIMME, 0);
     post(RVBAP_VERSION);
-	return 0;
+    return 0;
 }
 
 static void rvbap_assist(t_rvbap *x, void *b, long m, long a, char *s)
@@ -626,7 +626,7 @@ static void rvbap_bang(t_rvbap *x)
         oversqrtdist = 1 / sqrt(x->x_dist);
             // build output for every loudspeaker
         for(i=0;i<x->x_ls_amount;i++)
-		{
+        {
                 // first, we output the gains for the direct (unreverberated) signals
                 // these just decrease as the distance increases
 #ifdef MAXMSP
