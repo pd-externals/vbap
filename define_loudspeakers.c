@@ -10,6 +10,14 @@
 #include "define_loudspeakers.h"
 #include <float.h>
 
+#if (defined PD_FLOATSIZE) && (PD_FLOATSIZE == 64) && (defined DBL_EPSILON)
+# define TFLT_EPSILON DBL_EPSILON
+#else
+# define TFLT_EPSILON FLT_EPSILON
+# define fabs fabsf
+#define acos acosf
+#endif
+
 #ifndef VBAP_OBJECT
 # ifdef PD
 // If we are within VBAP (which includes define_loudspeakers), then don't create a main for define_loudspeakres
@@ -522,10 +530,10 @@ t_float vol_p_side_lgth(int i, int j,int k, t_ls  lss[MAX_LS_AMOUNT] )
     t_float volper, lgth;
     t_ls xprod;
     ls_cross_prod(lss[i], lss[j], &xprod);
-    volper = fabsf(vec_prod(xprod, lss[k]));
-    lgth = (fabsf(vec_angle(lss[i],lss[j]))
-        + fabsf(vec_angle(lss[i],lss[k]))
-        + fabsf(vec_angle(lss[j],lss[k])));
+    volper = fabs(vec_prod(xprod, lss[k]));
+    lgth = (fabs(vec_angle(lss[i],lss[j]))
+        + fabs(vec_angle(lss[i],lss[k]))
+        + fabs(vec_angle(lss[j],lss[k])));
     if(lgth>0.00001)
         return volper / lgth;
     else
@@ -558,7 +566,6 @@ static int lines_intersect(int i,int j,int k,int l,t_ls  lss[MAX_LS_AMOUNT])
         //t_float angle;
     t_float dist_ij,dist_kl,dist_iv3,dist_jv3,dist_inv3,dist_jnv3;
     t_float dist_kv3,dist_lv3,dist_knv3,dist_lnv3;
-    t_float epsilon = FLT_EPSILON;
 
     ls_cross_prod(lss[i],lss[j],&v1);
     ls_cross_prod(lss[k],lss[l],&v2);
@@ -580,17 +587,17 @@ static int lines_intersect(int i,int j,int k,int l,t_ls  lss[MAX_LS_AMOUNT])
     dist_lnv3 = (vec_angle(neg_v3,lss[l]));
 
         /* if one of loudspeakers is close to crossing point, don't do anything*/
-    if(fabsf(dist_iv3)  <= epsilon || fabsf(dist_jv3)  <= epsilon ||
-        fabsf(dist_kv3)  <= epsilon || fabsf(dist_lv3)  <= epsilon ||
-        fabsf(dist_inv3) <= epsilon || fabsf(dist_jnv3) <= epsilon ||
-        fabsf(dist_knv3) <= epsilon || fabsf(dist_lnv3) <= epsilon )
+    if(fabs(dist_iv3) <= TFLT_EPSILON || fabs(dist_jv3) <= TFLT_EPSILON ||
+        fabs(dist_kv3) <= TFLT_EPSILON || fabs(dist_lv3) <= TFLT_EPSILON ||
+        fabs(dist_inv3) <= TFLT_EPSILON || fabs(dist_jnv3) <= TFLT_EPSILON ||
+        fabs(dist_knv3) <= TFLT_EPSILON || fabs(dist_lnv3) <= TFLT_EPSILON )
         return(0);
 
         // if crossing point is on line between both loudspeakers return 1
-    if (((fabsf(dist_ij - (dist_iv3 + dist_jv3))   <= epsilon)  &&
-            (fabsf(dist_kl - (dist_kv3 + dist_lv3))   <= epsilon)) ||
-        ((fabsf(dist_ij - (dist_inv3 + dist_jnv3)) <= epsilon)  &&
-            (fabsf(dist_kl - (dist_knv3 + dist_lnv3)) <= epsilon))) {
+    if (((fabs(dist_ij - (dist_iv3 + dist_jv3)) <= TFLT_EPSILON)  &&
+            (fabs(dist_kl - (dist_kv3 + dist_lv3)) <= TFLT_EPSILON)) ||
+        ((fabs(dist_ij - (dist_inv3 + dist_jnv3)) <= TFLT_EPSILON)  &&
+            (fabs(dist_kl - (dist_knv3 + dist_lnv3)) <= TFLT_EPSILON))) {
         return (1);
     } else {
         return (0);
@@ -831,7 +838,7 @@ static int calc_2D_inv_tmatrix(t_float azi1,t_float azi2, t_float inv_mat[4],t_f
     mat[2]=x3 = cos(azi2 / rad2ang);
     mat[3]=x4 = sin(azi2 / rad2ang);
     det = (x1 * x4) - ( x3 * x2 );
-    if(fabsf(det) <= 0.001) {
+    if(fabs(det) <= 0.001) {
 
         inv_mat[0] = 0.0;
         inv_mat[1] = 0.0;
