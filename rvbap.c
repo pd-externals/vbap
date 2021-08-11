@@ -219,11 +219,12 @@ static void cart_to_angle(t_float cvec[3], t_float avec[3])
         atan_x_pl_y_per_z = 0.0;
     else
         atan_x_pl_y_per_z = atan(cvec[2] / dist);
-    if(dist == 0.0)
+    if(dist == 0.0) {
         if(cvec[2]<0.0)
             atan_x_pl_y_per_z = -pi/2.0;
         else
             atan_x_pl_y_per_z = pi/2.0;
+    }
     ele = atan_x_pl_y_per_z / atorad;
     dist = sqrt(cvec[0] * cvec[0] +cvec[1] * cvec[1] +cvec[2]*cvec[2]);
     avec[0]=azi;
