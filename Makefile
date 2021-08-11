@@ -9,7 +9,7 @@ lib.name = vbap
 class.sources = vbap.c rvbap.c define_loudspeakers.c
 
 # all extra files to be included in binary distribution of the library
-datafiles = define_loudspeakers.h max2pd.h vbap.h \
+datafiles = max2pd.h vbap.h \
             README.md LICENSE.txt CHANGELOG.txt \
             $(wildcard *.pd) $(wildcard examples/*.pd)
 
