@@ -45,8 +45,8 @@ typedef struct vbap /* This defines the object as an entity made up of other thi
     void *x_outlet2;
     void *x_outlet3;
     void *x_outlet4;
-    t_float x_set_inv_matx[MAX_LS_SETS][9];// inverse matrice for each loudspeaker set
-    t_float x_set_matx[MAX_LS_SETS][9]; // matrice for each loudspeaker set
+    t_float x_set_inv_matx[MAX_LS_SETS][9];// inverse matrix for each loudspeaker set
+    t_float x_set_matx[MAX_LS_SETS][9]; // matrix for each loudspeaker set
     long x_lsset[MAX_LS_SETS][3]; // channel numbers of loudspeakers in each LS set
     long x_lsset_available; // have loudspeaker sets been defined with define_loudspeakers
     long x_lsset_amount; // amount of loudspeaker sets
@@ -70,8 +70,8 @@ typedef struct vbap /* This defines the object as an entity made up of other thi
     void *x_outlet2;
     void *x_outlet3;
     void *x_outlet4;
-    t_float x_set_inv_matx[MAX_LS_SETS][9];// inverse matrice for each loudspeaker set
-    t_float x_set_matx[MAX_LS_SETS][9]; // matrice for each loudspeaker set
+    t_float x_set_inv_matx[MAX_LS_SETS][9];// inverse matrix for each loudspeaker set
+    t_float x_set_matx[MAX_LS_SETS][9]; // matrix for each loudspeaker set
     long x_lsset[MAX_LS_SETS][3]; // channel numbers of loudspeakers in each LS set
     long x_lsset_available; // have loudspeaker sets been defined with define_loudspeakers
     long x_lsset_amount; // amount of loudspeaker sets
