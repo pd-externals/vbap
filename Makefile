@@ -13,6 +13,9 @@ datafiles = max2pd.h vbap.h \
             README.md LICENSE.txt CHANGELOG.txt \
             $(wildcard *.pd) $(wildcard examples/*.pd)
 
+# ignore unused object creation new function warnings
+suppress-wunused = yes
+
 # include Makefile.pdlibbuilder, allow override using PDLIBBUILDER_DIR variable
 PDLIBBUILDER_DIR=.
 include $(PDLIBBUILDER_DIR)/Makefile.pdlibbuilder
