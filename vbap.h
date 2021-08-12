@@ -37,12 +37,12 @@ static t_float atorad = (2.0f * M_PI) / 360.0f;
 
 #ifdef VBAP_OBJECT
     // inside vbap object, so sending matrix from define_loudspeakers is a simple call to the vbap receiver...
-#define sendLoudspeakerMatrices(x,list_length, at) \
+#define sendLoudspeakerMatrices(x, list_length, at) \
     vbap_matrix(x, gensym("loudspeaker-matrices"),list_length, at); \
     vbap_bang(x)
 #else
     // inside define_loudspeaker object, send matrix to outlet
-#define sendLoudspeakerMatrices(x,list_length, at) \
+#define sendLoudspeakerMatrices(x, list_length, at) \
     outlet_anything(x->x_outlet0, gensym("loudspeaker-matrices"), list_length, at);
 #endif
 
