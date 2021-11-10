@@ -52,7 +52,7 @@ void vbap_def_ls(t_def_ls *x, t_symbol *s, int ac, Atom *av);
 void define_loudspeakers_setup(void)
 {
     def_ls_class = class_new(gensym("define_loudspeakers"), (t_newmethod)def_ls_new, 0, (short)sizeof(t_def_ls), 0, A_GIMME, 0);
-        /* def_ls_new = creation function, A_DEFLONG = its (optional) arguement is a long (32-bit) int */
+        /* def_ls_new = creation function, A_DEFLONG = its (optional) argument is a long (32-bit) int */
 
     class_addbang(def_ls_class, (t_method)def_ls_bang); /* the procedure it uses when it gets a bang in the left inlet */
     class_addmethod(def_ls_class, (t_method)def_ls_read_directions, gensym("ls-directions"), A_GIMME, 0);
@@ -64,7 +64,7 @@ void define_loudspeakers_setup(void)
 void main(void)
 {
     setup((t_messlist **)&def_ls_class, (method)def_ls_new, 0L, (short)sizeof(t_def_ls), 0L, A_GIMME, 0);
-        /* def_ls_new = creation function, A_DEFLONG = its (optional) arguement is a long (32-bit) int */
+        /* def_ls_new = creation function, A_DEFLONG = its (optional) argument is a long (32-bit) int */
 
     addbang((method)def_ls_bang); /* the procedure it uses when it gets a bang in the left inlet */
     addmess((method)def_ls_read_directions, "ls-directions", A_GIMME, 0);

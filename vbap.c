@@ -190,8 +190,8 @@ static void *vbap_new(t_float azi, t_float ele, t_float spread)
     return x; /* return a reference to the object instance */
 }
 
-// currently can allocate upto 256K to support up to 44 channels in 3D
-// note: to save memory, the required memory for a given configuration could instead be dynamically allocated by calling this method from the vbap_matrix() method
+// currently can allocate up to 256K to support up to 44 channels in 3D
+// note: to save memory, the required memory for a given configuration could instead,  be dynamically allocated by calling this method from the vbap_matrix() method
 static int vbap_getmem(t_vbap *x, int lsSetCount)
 {
 
