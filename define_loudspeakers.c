@@ -83,7 +83,7 @@ static void def_ls_bang(t_def_ls *x) /* x = reference to this instance of the ob
     {
         if(x->x_def_ls_amount < x->x_def_ls_dimension)
         {
-            pd_error(NULL, "define-loudspeakers: Too few loudspeakers!");
+            pd_error(x, "define-loudspeakers: Too few loudspeakers!");
             return;
         }
         else
@@ -99,19 +99,19 @@ static void def_ls_bang(t_def_ls *x) /* x = reference to this instance of the ob
             }
             else
             {
-                pd_error(NULL, "define-loudspeakers: Error in loudspeaker direction data");
-                pd_error(NULL, "dimension azimuth1 [elevation1] azimuth2 [elevation2]...");
-                pd_error(NULL, "dimension == 2 for horizontal ls arrays");
-                pd_error(NULL, "dimension == 3 for 3-D ls arrays (speakers also upward and/or downward ");
+                pd_error(x, "define-loudspeakers: Error in loudspeaker direction data");
+                pd_error(x, "dimension azimuth1 [elevation1] azimuth2 [elevation2]...");
+                pd_error(x, "dimension == 2 for horizontal ls arrays");
+                pd_error(x, "dimension == 3 for 3-D ls arrays (speakers also upward and/or downward ");
             }
         }
     }
     else
     {
-        pd_error(NULL, "define-loudspeakers: Error in loudspeaker direction data");
-        pd_error(NULL, "dimension azimuth1 [elevation1] azimuth2 [elevation2]...");
-        pd_error(NULL, "dimension == 2 for horizontal ls arrays");
-        pd_error(NULL, "dimension == 3 for 3-D ls arrays (speakers also upward and/or downward ");
+        pd_error(x, "define-loudspeakers: Error in loudspeaker direction data");
+        pd_error(x, "dimension azimuth1 [elevation1] azimuth2 [elevation2]...");
+        pd_error(x, "dimension == 2 for horizontal ls arrays");
+        pd_error(x, "dimension == 3 for 3-D ls arrays (speakers also upward and/or downward ");
     }
 }
 
@@ -131,13 +131,13 @@ static void def_ls_read_triplets(t_def_ls *x, t_symbol *s, int ac, Atom *av)
     (void)s;
     if(x->x_ls_read == 0)
     {
-        pd_error(NULL, "define_loudspeakers: Define loudspeaker directions first!");
+        pd_error(x, "define_loudspeakers: Define loudspeaker directions first!");
         return;
     }
 
     if(x->x_def_ls_dimension == 2)
     {
-        pd_error(NULL, "define_loudspeakers: Can't specify loudspeaker triplets in 2-D setup!");
+        pd_error(x, "define_loudspeakers: Can't specify loudspeaker triplets in 2-D setup!");
         return;
     }
 
@@ -250,7 +250,7 @@ static void initContent_ls_directions(t_def_ls *x, int ac, Atom*av)
     long d = 0;
 /* if (av[0].a_type == A_LONG) d = av[0].a_w.w_long;
     else */ if(av[0].a_type == A_FLOAT) d = (long)av[0].a_w.w_float;
-    else { pd_error(NULL, "define-loudspeakers: dimension NaN"); return; }
+    else { pd_error(x, "define-loudspeakers: dimension NaN"); return; }
 
     if(d==2 || d==3)
     {
@@ -260,7 +260,7 @@ static void initContent_ls_directions(t_def_ls *x, int ac, Atom*av)
     else
     {
         x->x_def_ls_dimension = 0;
-        pd_error(NULL, "define-loudspeakers: Dimension has to be 2 or 3!");
+        pd_error(x, "define-loudspeakers: Dimension has to be 2 or 3!");
         return;
     }
 
@@ -274,7 +274,7 @@ static void initContent_ls_directions(t_def_ls *x, int ac, Atom*av)
         t_float azi = 0;
 /* if(av[pointer].a_type == A_LONG) azi = (float) av[pointer].a_w.w_long;
         else */ if(av[pointer].a_type == A_FLOAT) azi = av[pointer].a_w.w_float;
-        else { pd_error(NULL, "define-loudspeakers: direction angle #%d NaN", i+1); x->x_ls_read = 0; return; }
+        else { pd_error(x, "define-loudspeakers: direction angle #%d NaN", i+1); x->x_ls_read = 0; return; }
 
         x->x_ls[i].azi = azi;
 
@@ -285,7 +285,7 @@ static void initContent_ls_directions(t_def_ls *x, int ac, Atom*av)
         { // 3-D
 /* if(av[pointer].a_type == A_LONG) ele = (float) av[pointer].a_w.w_long;
             else */ if(av[pointer].a_type == A_FLOAT) ele = av[pointer].a_w.w_float;
-            else { pd_error(NULL, "define-loudspeakers: elevation #%d NaN", i+1); x->x_ls_read = 0; return; }
+            else { pd_error(x, "define-loudspeakers: elevation #%d NaN", i+1); x->x_ls_read = 0; return; }
 
             pointer++;
         }
@@ -642,7 +642,7 @@ static void calculate_3x3_matrixes(t_def_ls *x)
 
     if(tr_ptr == NULL)
     {
-        pd_error(NULL, "define-loudspeakers: Not valid 3-D configuration\n");
+        pd_error(x, "define-loudspeakers: Not valid 3-D configuration\n");
         return;
     }
 

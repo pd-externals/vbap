@@ -204,34 +204,34 @@ static int vbap_getmem(t_vbap *x, int lsSetCount)
         //was t_float x_set_inv_matx[MAX_LS_SETS][9];
     x->x_set_inv_matx = getbytes(sizeof(t_float *) * lsSetCount);
 
-    if(!x->x_set_inv_matx) {pd_error(NULL, "vbap_getmem: can't allocate additional %ld bytes", sizeof(t_float *) * lsSetCount); return 0;}
+    if(!x->x_set_inv_matx) {pd_error(x, "vbap_getmem: can't allocate additional %ld bytes", sizeof(t_float *) * lsSetCount); return 0;}
 
     for(i = 0; i < lsSetCount; i++)
     {
         x->x_set_inv_matx[i] = getbytes(sizeof(t_float) * MATRIX_DIM);
-        if(!x->x_set_inv_matx[i]) {pd_error(NULL, "vbap_getmem: can't allocate additional %ld bytes", sizeof(t_float) * MATRIX_DIM); return 0;}
+        if(!x->x_set_inv_matx[i]) {pd_error(x, "vbap_getmem: can't allocate additional %ld bytes", sizeof(t_float) * MATRIX_DIM); return 0;}
     }
 
         //was t_float x_set_matx[MAX_LS_SETS][9];
     x->x_set_matx = getbytes(sizeof(t_float *) * lsSetCount);
 
-    if(!x->x_set_matx) {pd_error(NULL, "vbap_getmem: can't allocate additional %ld bytes", sizeof(t_float *) * lsSetCount); return 0;}
+    if(!x->x_set_matx) {pd_error(x, "vbap_getmem: can't allocate additional %ld bytes", sizeof(t_float *) * lsSetCount); return 0;}
 
     for(i = 0; i < lsSetCount; i++)
     {
         x->x_set_matx[i] = getbytes(sizeof(t_float) * MATRIX_DIM);
-        if(!x->x_set_matx[i]) {pd_error(NULL, "vbap_getmem: can't allocate additional %ld bytes", sizeof(t_float) * MATRIX_DIM); return 0;}
+        if(!x->x_set_matx[i]) {pd_error(x, "vbap_getmem: can't allocate additional %ld bytes", sizeof(t_float) * MATRIX_DIM); return 0;}
     }
 
         //was long x_lsset[MAX_LS_SETS][3];
     x->x_lsset = getbytes(sizeof(long *) * lsSetCount);
 
-    if(!x->x_lsset) {pd_error(NULL, "vbap_getmem: can't allocate additional %ld bytes", sizeof(long *) * lsSetCount); return 0;}
+    if(!x->x_lsset) {pd_error(x, "vbap_getmem: can't allocate additional %ld bytes", sizeof(long *) * lsSetCount); return 0;}
 
     for(i = 0; i < lsSetCount; i++)
     {
         x->x_lsset[i] = getbytes(sizeof(long) * SPEAKER_SET_DIM);
-        if(!x->x_lsset[i]) {pd_error(NULL, "vbap_getmem: can't allocate additional %ld bytes", sizeof(long) * SPEAKER_SET_DIM); return 0;}
+        if(!x->x_lsset[i]) {pd_error(x, "vbap_getmem: can't allocate additional %ld bytes", sizeof(long) * SPEAKER_SET_DIM); return 0;}
     }
 
     unsigned long memallocd = 2 * (sizeof(t_float *) * lsSetCount * sizeof(t_float) * MATRIX_DIM) + (sizeof(long *) * lsSetCount * sizeof(long) * SPEAKER_SET_DIM);
@@ -693,7 +693,7 @@ static void vbap_bang(t_vbap *x)
         outlet_int(x->x_outlet3, x->x_spread);
     }
     else
-        pd_error(NULL, "vbap: Configure loudspeakers first!");
+        pd_error(x, "vbap: Configure loudspeakers first!");
 
     freebytes(final_gs, x->x_ls_amount * sizeof(t_float)); // bug fix added 9/00
 }
@@ -713,36 +713,36 @@ static void vbap_matrix(t_vbap *x, Symbol *s, int ac, Atom *av)
             d = (long)av[datapointer++].a_w.w_float;
         else
         {
-            pd_error(NULL, "vbap: Dimension NaN"); x->x_lsset_available = 0;
+            pd_error(x, "vbap: Dimension NaN"); x->x_lsset_available = 0;
             return;
         }
 
-        if(d!=2 && d!=3) { pd_error(NULL, "vbap %s: Dimension can be only 2 or 3", s->s_name); x->x_lsset_available = 0; return; }
+        if(d!=2 && d!=3) { pd_error(x, "vbap %s: Dimension can be only 2 or 3", s->s_name); x->x_lsset_available = 0; return; }
 
         x->x_dimension = d;
         x->x_lsset_available=1;
     }
-    else { pd_error(NULL, "vbap %s: bad empty parameter list", s->s_name); x->x_lsset_available = 0; return; }
+    else { pd_error(x, "vbap %s: bad empty parameter list", s->s_name); x->x_lsset_available = 0; return; }
 
     if(ac > 1)
     {
         long a = 0;
             /*if(av[datapointer].a_type == A_LONG) a = av[datapointer++].a_w.w_long;
               else*/ if(av[datapointer].a_type == A_FLOAT) a = (long)av[datapointer++].a_w.w_float;
-        else { pd_error(NULL, "vbap: ls_amount NaN"); x->x_lsset_available = 0; return; }
+        else { pd_error(x, "vbap: ls_amount NaN"); x->x_lsset_available = 0; return; }
 
         x->x_ls_amount = a;
     }
 
     long counter = (ac - 2) / ((x->x_dimension * x->x_dimension * 2) + x->x_dimension);
 
-    if(counter-1 > MAX_LS_SETS) { pd_error(NULL, "vbap %s: loudspeaker definitions exceed maximum number of speakers", s->s_name); x->x_lsset_available = 0; return; }
+    if(counter-1 > MAX_LS_SETS) { pd_error(x, "vbap %s: loudspeaker definitions exceed maximum number of speakers", s->s_name); x->x_lsset_available = 0; return; }
 
     vbap_getmem(x, counter); // PD only: allocate memory (frees any previously allocated memory automatically)
 
     x->x_lsset_amount = counter;
 
-    if(counter == 0) { pd_error(NULL, "vbap %s: not enough parameters", s->s_name); x->x_lsset_available = 0; return; }
+    if(counter == 0) { pd_error(x, "vbap %s: not enough parameters", s->s_name); x->x_lsset_available = 0; return; }
 
     long setpointer=0;
     long i;
@@ -757,13 +757,13 @@ static void vbap_matrix(t_vbap *x, Symbol *s, int ac, Atom *av)
             {
                 x->x_lsset[setpointer][i] = (long)av[datapointer++].a_w.w_float;
             }
-            else { pd_error(NULL, "vbap %s: param %d is not a float",s->s_name,datapointer); x->x_lsset_available = 0; return; }
+            else { pd_error(x, "vbap %s: param %d is not a float",s->s_name,datapointer); x->x_lsset_available = 0; return; }
 # else /* Max */
             if(av[datapointer].a_type == A_LONG)
             {
                 x->x_lsset[setpointer][i] = av[datapointer++].a_w.w_long;
             }
-            else { pd_error(NULL, "vbap %s: param %d is not an in", s->s_name,datapointer); x->x_lsset_available = 0; return; }
+            else { pd_error(x, "vbap %s: param %d is not an in", s->s_name,datapointer); x->x_lsset_available = 0; return; }
 # endif /* PD */
         }
 
@@ -773,7 +773,7 @@ static void vbap_matrix(t_vbap *x, Symbol *s, int ac, Atom *av)
             {
                 x->x_set_inv_matx[setpointer][i] = av[datapointer++].a_w.w_float;
             }
-            else { pd_error(NULL, "vbap BB %s: param %d is not a float", s->s_name,datapointer); x->x_lsset_available = 0; return; }
+            else { pd_error(x, "vbap BB %s: param %d is not a float", s->s_name,datapointer); x->x_lsset_available = 0; return; }
         }
 
         for(i = 0; i < x->x_dimension*x->x_dimension; i++)
@@ -783,7 +783,7 @@ static void vbap_matrix(t_vbap *x, Symbol *s, int ac, Atom *av)
                 x->x_set_matx[setpointer][i] = av[datapointer++].a_w.w_float;
             }
             else {
-                pd_error(NULL, "vbap %s: param %d is not a float", s->s_name,datapointer); x->x_lsset_available = 0;
+                pd_error(x, "vbap %s: param %d is not a float", s->s_name,datapointer); x->x_lsset_available = 0;
                 return;
             }
         }
