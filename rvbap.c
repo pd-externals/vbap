@@ -24,7 +24,7 @@
 #define M_PI 3.14159265358979323846264338327950288
 #endif
 
-#define RVBAP_VERSION "rvbap v1.2 - (c) Olaf Matthes 2003-2007, based on vbap by Ville Pulkki"
+#define RVBAP_VERSION "rvbap v1.2.1 - (c) Olaf Matthes 2003-2007, based on vbap by Ville Pulkki"
 
 #define MAX_LS_SETS 100 // maximum number of loudspeaker sets (triplets or pairs) allowed
 #define MAX_LS_AMOUNT 55 // maximum amount of loudspeakers, can be increased

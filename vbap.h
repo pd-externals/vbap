@@ -29,8 +29,8 @@
 #define MAX_LS_AMOUNT 55 // maximum amount of loudspeakers, can be increased, but see comments next to MAX_LS_SETS above
 #define MIN_VOL_P_SIDE_LGTH 0.01
 
-#define VBAP_VERSION "vbap v1.2 - 17 Jul 2018 - (c) Ville Pulkki 1999-2006 (Pd port by HCS)"
-#define DFLS_VERSION "define_loudspeakers v1.2 - 17 July 2018 - (c) Ville Pulkki 1999-2006"
+#define VBAP_VERSION "vbap v1.2.1 - (c) Ville Pulkki 1999-2006 (Pd port by HCS)"
+#define DFLS_VERSION "define_loudspeakers v1.2.1 - (c) Ville Pulkki 1999-2006"
 
 static t_float rad2ang = 360.0 / (2.0f * M_PI);
 static t_float atorad = (2.0f * M_PI) / 360.0f;

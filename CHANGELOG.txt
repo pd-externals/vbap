@@ -1,4 +1,8 @@
-2018 TBD version 1.2.0
+2023 Jun 05 version 1.2.1
+
+* update error to pd_error for newer pd versions (Dan Wilcox)
+
+2022 Jan 21 version 1.2.0
 
 * transitioned Makefile to use pd-lib-builder (Dan Wilcox)
 * added loudspeaker set definition and current active set info outlet (Chikashi Miyama)
