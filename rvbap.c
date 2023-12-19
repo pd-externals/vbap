@@ -600,8 +600,8 @@ static void rvbap_bang(t_rvbap *x)
 // top level, vbap gains are calculated and outputted
 {
     t_atom at[MAX_LS_AMOUNT];
-    t_float g[3];
-    long ls[3];
+    t_float g[3] = {0.,0.,0.};
+    long ls[3] = {0,0,0};
     long i;
     t_float *final_gs, overdist, oversqrtdist;
     final_gs = (t_float *) getbytes(x->x_ls_amount * sizeof(t_float));
