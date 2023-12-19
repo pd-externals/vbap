@@ -287,6 +287,7 @@ static void vbap(t_float g[3], long ls[3], t_rvbap *x)
             if(gtmp[j] >= -0.01)
                 neg_g_am--;
         }
+
         if(small_g > big_sm_g && neg_g_am <= best_neg_g_am) {
             big_sm_g = small_g;
             best_neg_g_am = neg_g_am;
@@ -300,7 +301,7 @@ static void vbap(t_float g[3], long ls[3], t_rvbap *x)
                 g[2] = 0.0;
                 ls[2] = 0;
             }
-        }
+	}
     }
 
         // If chosen set produced a negative value, make it zero and
@@ -699,7 +700,7 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
     if(ac > 1) {
       DATA2VAR(x->x_ls_amount);
     } else {
-        x->x_lsset_available = 0;
+      x->x_lsset_available = 0;
     }
 
     if(x->x_dimension == 3)
