@@ -18,6 +18,9 @@
 
 #ifdef PD
 #include "m_pd.h" /* you must include this - it contains the external object's link to pure data */
+# define A_LONG A_FLOAT
+# define SETLONG SETFLOAT
+# define outlet_int outlet_float
 #endif
 
 #ifndef M_PI
@@ -608,6 +611,10 @@ static void rvbap_bang(t_rvbap *x)
 #endif
 
     if(x->x_lsset_available == 1) {
+        t_symbol*listsym = NULL;
+#ifdef PD
+        listsym = gensym("list");
+#endif
         vbap(g, ls, x);
         for(i = 0; i < x->x_ls_amount; i++)
             final_gs[i] = 0.0;
@@ -623,45 +630,23 @@ static void rvbap_bang(t_rvbap *x)
         for(i = 0; i < x->x_ls_amount; i++) {
                 // first, we output the gains for the direct (unreverberated) signals
                 // these just decrease as the distance increases
-#ifdef MAXMSP
             SETLONG(&at[0], i);
             SETFLOAT(&at[1], (final_gs[i] / x->x_dist));
-            outlet_list(x->x_outlet0, NULL, 2, at);
-#endif
-#ifdef PD
-            SETFLOAT(&at[0], i);
-            SETFLOAT(&at[1], (final_gs[i] / x->x_dist));
-            outlet_list(x->x_outlet0, gensym("list"), 2, at);
-#endif
+            outlet_list(x->x_outlet0, listsym, 2, at);
                 // second, we output the gains for the reverberated signals
                 // these are made up of a global (all speakers) and a local part
-#ifdef MAXMSP
-            SETLONG(&at[0], i+x->x_ls_amount); // direct signals come first in matrix~
+            SETLONG(&at[0], (i+x->x_ls_amount)); // direct signals come first in matrix~
             SETFLOAT(&at[1], (((oversqrtdist / x->x_dist) * x->x_reverb_gs[i]) + (oversqrtdist * (1 - overdist) * final_gs[i])));
-            outlet_list(x->x_outlet0, NULL, 2, at);
-#endif
-#ifdef PD
-            SETFLOAT(&at[0], (i+x->x_ls_amount)); // direct signals come first in matrix~
-            SETFLOAT(&at[1], (((oversqrtdist / x->x_dist) * x->x_reverb_gs[i]) + (oversqrtdist * (1 - overdist) * final_gs[i])));
-            outlet_list(x->x_outlet0, gensym("list"), 2, at);
-#endif
+            outlet_list(x->x_outlet0, listsym, 2, at);
         }
-#ifdef MAXMSP
         outlet_int(x->x_outlet1, x->x_azi);
         outlet_int(x->x_outlet2, x->x_ele);
         outlet_int(x->x_outlet3, x->x_spread);
-        outlet_float(x->x_outlet4, (double)x->x_dist);
-#endif
-#ifdef PD
-        outlet_float(x->x_outlet1, x->x_azi);
-        outlet_float(x->x_outlet2, x->x_ele);
-        outlet_float(x->x_outlet3, x->x_spread);
         outlet_float(x->x_outlet4, x->x_dist);
-#endif
     }
-    else
+    else {
       pd_error(x, "rvbap: Configure loudspeakers first!");
-
+    }
     freebytes(final_gs, x->x_ls_amount * sizeof(t_float)); // bug fix added 9/00
 }
 
@@ -681,37 +666,38 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
     long ls[3] = {0,0,0};
     (void)s;
 
-    if(ac > 0)
 #ifdef MAXMSP
-        if(av[datapointer].a_type == A_LONG) {
-            x->x_dimension = av[datapointer++].a_w.w_long;
-            x->x_lsset_available = 1;
-        } else
+# define DATA2VAR(var) do {			   \
+    if(av[datapointer].a_type == A_LONG) {	   \
+      var = av[datapointer++].a_w.w_long;	   \
+      x->x_lsset_available = 1;			   \
+    } else if(av[datapointer].a_type == A_FLOAT) { \
+      var = ac[datapointer++].a_w.w_float;	   \
+      x->x_lsset_available = 1;			   \
+    } else {					   \
+      x->x_lsset_available = 0;			   \
+      pd_error(x, "Error in loudspeaker data!");   \
+      return;					   \
+      } } while(0)
+#else
+# define DATA2VAR(var) do {			   \
+      if(av[datapointer].a_type == A_FLOAT) {	   \
+	var = av[datapointer++].a_w.w_float;	   \
+	x->x_lsset_available = 1;		   \
+      } else {					   \
+	x->x_lsset_available = 0;		   \
+	pd_error(x, "Error in loudspeaker data!"); \
+	return;					   \
+      } } while(0)
 #endif
-        {
-            if(av[datapointer].a_type == A_FLOAT) {
-                x->x_dimension = (long)av[datapointer++].a_w.w_float;
-                x->x_lsset_available = 1;
-            } else {
-                pd_error(x, "Error in loudspeaker data!");
-                x->x_lsset_available = 0;
-                return;
-            }
-        //post("%d",deb++);
-        }
+
+
+
+    if(ac > 0) {
+      DATA2VAR(x->x_dimension);
+    }
     if(ac > 1) {
-#ifdef MAXMSP
-        if(av[datapointer].a_type == A_LONG)
-            x->x_ls_amount = av[datapointer++].a_w.w_long;
-        else
-#endif
-            if(av[datapointer].a_type == A_FLOAT)
-                x->x_ls_amount = (long) av[datapointer++].a_w.w_float;
-            else {
-                pd_error(x, "rvbap: Error in loudspeaker data!");
-                x->x_lsset_available = 0;
-                return;
-            }
+      DATA2VAR(x->x_ls_amount);
     } else {
         x->x_lsset_available = 0;
     }
@@ -730,12 +716,7 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
 
     while(counter-- > 0) {
         for(i = 0; i < x->x_dimension; i++) {
-#ifdef MAXMSP
-            if(av[datapointer].a_type == A_LONG)
-#endif
-#ifdef PD
-                if(av[datapointer].a_type == A_FLOAT)
-#endif
+                if(av[datapointer].a_type == A_LONG)
                 {
                     x->x_lsset[setpointer][i] = (long)av[datapointer++].a_w.w_float;
                 }
@@ -894,32 +875,19 @@ static void *rvbap_new(t_symbol *s, int ac, t_atom *av)
     x->x_spread_base[2] = 0.0;
     x->x_spread = 0;
     x->x_lsset_available = 0;
-    if(ac > 0) {
 #ifdef MAXMSP
-        if(av[0].a_type == A_LONG)
-            x->x_azi = av[0].a_w.w_long;
-        else
+# define NUMBER2VAR(var, id)						\
+    if (ac > id) {							\
+      if(av[id].a_type == A_LONG) var = av[id].a_w.w_long;		\
+      else if(av[id].a_type == A_FLOAT) var = av[0].a_w.w_float;	\
+    } else var = 0
+#else
+# define NUMBER2VAR(var, id)			\
+    atom_getfloatarg(id, ac, av)
 #endif
-            if(av[0].a_type == A_FLOAT)
-                x->x_azi = av[0].a_w.w_float;
-    }
-    if(ac > 1) {
-#ifdef MAXMSP
-        if(av[1].a_type == A_LONG)
-            x->x_ele = av[1].a_w.w_long;
-        else
-#endif
-            if(av[1].a_type == A_FLOAT)
-                x->x_ele = av[1].a_w.w_float;
-    }
-    if(ac > 2) {
-#ifdef MAXMSP
-        if(av[2].a_type == A_LONG)
-            x->x_dist = (float)av[2].a_w.w_long;
-        else
-#endif
-            if(av[2].a_type == A_FLOAT)
-                x->x_dist = av[2].a_w.w_float;
-    }
+
+    NUMBER2VAR(x->x_azi, 0);
+    NUMBER2VAR(x->x_ele, 1);
+    NUMBER2VAR(x->x_dist, 2);
     return(x); /* return a reference to the object instance */
 }
