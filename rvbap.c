@@ -599,7 +599,6 @@ static void rvbap_bang(t_rvbap *x)
     long ls[3];
     long i;
     t_float *final_gs, overdist, oversqrtdist;
-    return;
     final_gs = (t_float *) getbytes(x->x_ls_amount * sizeof(t_float));
 
 #ifdef PD
