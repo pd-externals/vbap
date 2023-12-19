@@ -653,7 +653,7 @@ static void calculate_3x3_matrixes(t_def_ls *x)
         tr_ptr = tr_ptr->next;
     }
     tr_ptr = x->x_ls_set;
-    list_length = triplet_amount * 21 + 3;
+    list_length = triplet_amount * 21 + 2;
     at = (Atom *) getbytes(list_length * sizeof(Atom));
 
     SETLONG(&at[0], x->x_def_ls_dimension);
@@ -680,14 +680,17 @@ static void calculate_3x3_matrixes(t_def_ls *x)
         invmx[2] = ((lp2->x * lp3->y) - (lp2->y * lp3->x)) * invdet;
         invmx[5] = ((lp1->x * lp3->y) - (lp1->y * lp3->x)) * -invdet;
         invmx[8] = ((lp1->x * lp2->y) - (lp1->y * lp2->x)) * invdet;
+            /* pointer:+3 */
         for(i = 0; i < 3; i++) {
             SETLONG(&at[pointer], tr_ptr->ls_nos[i]+1);
             pointer++;
         }
+            /* pointer:+9 */
         for(i = 0; i < 9; i++) {
             SETFLOAT(&at[pointer], invmx[i]);
             pointer++;
         }
+            /* pointer:+9 */
         SETFLOAT(&at[pointer], lp1->x); pointer++;
         SETFLOAT(&at[pointer], lp2->x); pointer++;
         SETFLOAT(&at[pointer], lp3->x); pointer++;
