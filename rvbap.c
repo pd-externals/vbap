@@ -703,15 +703,24 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
       x->x_lsset_available = 0;
     }
 
-    if(x->x_dimension == 3)
-        counter = (ac - 2) / ((x->x_dimension * x->x_dimension*2) + x->x_dimension);
-    if(x->x_dimension == 2)
-        counter = (ac - 2) / ((x->x_dimension * x->x_dimension) + x->x_dimension);
+
+    switch(x->x_dimension) {
+    case 2:
+      counter = (ac - 2) / 10;
+      break;
+    case 3:
+      counter = (ac - 2) / 21;
+      break;
+    default:
+      pd_error(x, "Dimension must be 2 or 3!");
+      x->x_lsset_available = 0;
+      return;
+    }
     x->x_lsset_amount = counter;
 
-    if(counter <= 0) {
-        pd_error(x, "rvbap: Error in loudspeaker data!");
+    if((counter <= 0) && (counter - 1 > MAX_LS_SETS)) {
         x->x_lsset_available = 0;
+        pd_error(x, "rvbap: Error in loudspeaker data - %d exceeds maximum number of speakers %d!", (int)counter, MAX_LS_SETS);
         return;
     }
 
