@@ -659,7 +659,8 @@ static void rvbap_bang(t_rvbap *x)
 #endif
     }
     else
-        post("rvbap: Configure loudspeakers first!");
+      pd_error(x, "rvbap: Configure loudspeakers first!");
+
     freebytes(final_gs, x->x_ls_amount * sizeof(t_float)); // bug fix added 9/00
 }
 
@@ -691,7 +692,7 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
                 x->x_dimension = (long)av[datapointer++].a_w.w_float;
                 x->x_lsset_available = 1;
             } else {
-                post("Error in loudspeaker data!");
+                pd_error(x, "Error in loudspeaker data!");
                 x->x_lsset_available = 0;
                 return;
             }
@@ -706,7 +707,7 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
             if(av[datapointer].a_type == A_FLOAT)
                 x->x_ls_amount = (long) av[datapointer++].a_w.w_float;
             else {
-                post("rvbap: Error in loudspeaker data!");
+                pd_error(x, "rvbap: Error in loudspeaker data!");
                 x->x_lsset_available = 0;
                 return;
             }
@@ -720,7 +721,7 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
     x->x_lsset_amount = counter;
 
     if(counter <= 0){
-        post("rvbap: Error in loudspeaker data!");
+        pd_error(x, "rvbap: Error in loudspeaker data!");
         x->x_lsset_available = 0;
         return;
     }
@@ -737,7 +738,7 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
                     x->x_lsset[setpointer][i] = (long)av[datapointer++].a_w.w_float;
                 }
                 else {
-                    post("rvbap: Error in loudspeaker data!");
+                    pd_error(x, "rvbap: Error in loudspeaker data!");
                     x->x_lsset_available = 0;
                     return;
                 }
@@ -747,7 +748,7 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
                 x->x_set_inv_matx[setpointer][i] = av[datapointer++].a_w.w_float;
             }
             else {
-                post("rvbap: Error in loudspeaker data!");
+                pd_error(x, "rvbap: Error in loudspeaker data!");
                 x->x_lsset_available = 0;
                 return;
             }
@@ -758,7 +759,7 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
                     x->x_set_matx[setpointer][i] = av[datapointer++].a_w.w_float;
                 }
                 else {
-                    post("rvbap: Error in loudspeaker data!");
+                    pd_error(x, "rvbap: Error in loudspeaker data!");
                     x->x_lsset_available = 0;
                     return;
                 }
