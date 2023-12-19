@@ -716,7 +716,6 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
       x->x_lsset_available = 0;
       return;
     }
-    x->x_lsset_amount = counter;
 
     if((counter <= 0) && (counter - 1 > MAX_LS_SETS)) {
         x->x_lsset_available = 0;
@@ -724,41 +723,43 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
         return;
     }
 
-    while(counter-- > 0) {
-        for(i = 0; i < x->x_dimension; i++) {
-                if(av[datapointer].a_type == A_LONG)
-                {
-                    x->x_lsset[setpointer][i] = (long)av[datapointer++].a_w.w_float;
-                }
-                else {
-                    pd_error(x, "rvbap: Error in loudspeaker data!");
-                    x->x_lsset_available = 0;
-                    return;
-                }
+    x->x_lsset_amount = counter;
+    for(setpointer=0; setpointer<counter; setpointer++) {
+      /* dimen */
+      for(i = 0; i < x->x_dimension; i++) {
+        if(av[datapointer].a_type == A_LONG)
+        {
+	  int LS = (int)av[datapointer++].a_w.w_float;
+          x->x_lsset[setpointer][i] = LS;
         }
-        for(i = 0; i < x->x_dimension * x->x_dimension; i++) {
-            if(av[datapointer].a_type == A_FLOAT) {
-                x->x_set_inv_matx[setpointer][i] = av[datapointer++].a_w.w_float;
-            }
-            else {
-                pd_error(x, "rvbap: Error in loudspeaker data!");
-                x->x_lsset_available = 0;
-                return;
-            }
+        else {
+          pd_error(x, "rvbap: Error in loudspeaker data (lsset))!");
+          x->x_lsset_available = 0;
+          return;
         }
-        if(x->x_dimension == 3) {
-            for(i = 0; i < x->x_dimension * x->x_dimension; i++) {
-                if(av[datapointer].a_type == A_FLOAT) {
-                    x->x_set_matx[setpointer][i] = av[datapointer++].a_w.w_float;
-                }
-                else {
-                    pd_error(x, "rvbap: Error in loudspeaker data!");
-                    x->x_lsset_available = 0;
-                    return;
-                }
-            }
+      }
+      /* dimen*dimen */
+      for(i = 0; i < x->x_dimension * x->x_dimension; i++) {
+        if(av[datapointer].a_type == A_FLOAT) {
+          x->x_set_inv_matx[setpointer][i] = av[datapointer++].a_w.w_float;
         }
-        setpointer++;
+        else {
+          pd_error(x, "rvbap: Error in loudspeaker data (inverse matrix)!");
+          x->x_lsset_available = 0;
+          return;
+        }
+      }
+      /* dimen*dimen */
+      for(i = 0; i < x->x_dimension * x->x_dimension; i++) {
+	if(av[datapointer].a_type == A_FLOAT) {
+	  x->x_set_matx[setpointer][i] = av[datapointer++].a_w.w_float;
+	}
+	else {
+	  pd_error(x, "rvbap: Error in loudspeaker data (matrix)!");
+	  x->x_lsset_available = 0;
+	  return;
+	}
+      }
     }
         // now configure static reverb correction values...
     x->x_azi = x->x_ele = 0;
