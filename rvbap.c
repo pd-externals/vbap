@@ -220,7 +220,7 @@ static void cart_to_angle(t_float cvec[3], t_float avec[3])
         atan_x_pl_y_per_z = 0.0;
     else
         atan_x_pl_y_per_z = atan(cvec[2] / dist);
-    if(dist == 0.0){
+    if(dist == 0.0) {
         if(cvec[2] < 0.0)
             atan_x_pl_y_per_z = -pi/2.0;
         else
@@ -254,13 +254,14 @@ static void vbap(t_float g[3], long ls[3], t_rvbap *x)
         x->x_azi += 360;
 
         // transferring the elevation to a decent value
-    if(dim == 3){
+    if(dim == 3) {
         while(x->x_ele > 180)
             x->x_ele -= 360;
         while(x->x_ele < -179)
             x->x_ele += 360;
-    } else
+    } else {
         x->x_ele = 0;
+    }
 
         // go through all defined loudspeaker sets and find the set which
         // has all positive values. If such is not found, set with largest
@@ -271,10 +272,10 @@ static void vbap(t_float g[3], long ls[3], t_rvbap *x)
     big_sm_g = -100000.0; // initial value for largest minimum gain value
     best_neg_g_am = 3; // how many negative values in this set
 
-    for(i = 0; i < x->x_lsset_amount; i++){
+    for(i = 0; i < x->x_lsset_amount; i++) {
         small_g = 10000000.0;
         neg_g_am = 3;
-        for(j = 0; j < dim; j++){
+        for(j = 0; j < dim; j++) {
             gtmp[j] = 0.0;
             for(k = 0; k < dim; k++)
                 gtmp[j] += cartdir[k]* x->x_set_inv_matx[i][k+j*dim];
@@ -283,13 +284,13 @@ static void vbap(t_float g[3], long ls[3], t_rvbap *x)
             if(gtmp[j] >= -0.01)
                 neg_g_am--;
         }
-        if(small_g > big_sm_g && neg_g_am <= best_neg_g_am){
+        if(small_g > big_sm_g && neg_g_am <= best_neg_g_am) {
             big_sm_g = small_g;
             best_neg_g_am = neg_g_am;
             winner_set = i;
             g[0] = gtmp[0]; g[1] = gtmp[1];
             ls[0] = x->x_lsset[i][0]; ls[1] = x->x_lsset[i][1];
-            if(dim == 3){
+            if(dim == 3) {
                 g[2] = gtmp[2];
                 ls[2] = x->x_lsset[i][2];
             } else {
@@ -304,15 +305,15 @@ static void vbap(t_float g[3], long ls[3], t_rvbap *x)
         // gain values. This happens when the virtual source is outside of
         // all loudspeaker sets.
 
-    if(dim == 3){
+    if(dim == 3) {
         gains_modified = 0;
-        for(i = 0; i < dim; i++){
-            if(g[i] < -0.01){
+        for(i = 0; i < dim; i++) {
+            if(g[i] < -0.01) {
                 g[i] = 0.0001;
                 gains_modified = 1;
             }
         }
-        if(gains_modified == 1){
+        if(gains_modified == 1) {
             new_cartdir[0] = x->x_set_matx[winner_set][0] * g[0]
                 + x->x_set_matx[winner_set][1] * g[1]
                 + x->x_set_matx[winner_set][2] * g[2];
@@ -364,10 +365,10 @@ static void additive_vbap(t_float *final_gs, t_float cartdir[3], t_rvbap *x)
     big_sm_g = -100000.0;
     best_neg_g_am = 3;
 
-    for(i = 0; i < x->x_lsset_amount; i++){
+    for(i = 0; i < x->x_lsset_amount; i++) {
         small_g = 10000000.0;
         neg_g_am = 3;
-        for(j = 0; j < dim; j++){
+        for(j = 0; j < dim; j++) {
             gtmp[j] = 0.0;
             for(k = 0; k < dim; k++)
                 gtmp[j] += cartdir[k]* x->x_set_inv_matx[i][k+j*dim];
@@ -376,12 +377,12 @@ static void additive_vbap(t_float *final_gs, t_float cartdir[3], t_rvbap *x)
             if(gtmp[j] >= -0.01)
                 neg_g_am--;
         }
-        if(small_g > big_sm_g && neg_g_am <= best_neg_g_am){
+        if(small_g > big_sm_g && neg_g_am <= best_neg_g_am) {
             big_sm_g = small_g;
             best_neg_g_am = neg_g_am;
             g[0] = gtmp[0]; g[1] = gtmp[1];
             ls[0] = x->x_lsset[i][0]; ls[1] = x->x_lsset[i][1];
-            if(dim == 3){
+            if(dim == 3) {
                 g[2] = gtmp[2];
                 ls[2] = x->x_lsset[i][2];
             } else {
@@ -392,12 +393,12 @@ static void additive_vbap(t_float *final_gs, t_float cartdir[3], t_rvbap *x)
     }
 
     gains_modified = 0;
-    for(i = 0; i < dim; i++){
-        if(g[i] < -0.01){
+    for(i = 0; i < dim; i++) {
+        if(g[i] < -0.01) {
             gains_modified = 1;
         }
     }
-    if(gains_modified != 1){
+    if(gains_modified != 1) {
         if(dim == 3)
             power = sqrt(g[0]*g[0] + g[1]*g[1] + g[2]*g[2]);
         else
@@ -428,7 +429,7 @@ static void new_spread_dir(t_rvbap *x, t_float spreaddir[3], t_float vscartdir[3
     m_gamma = acos(vscartdir[0] * spread_base[0] +
         vscartdir[1] * spread_base[1] +
         vscartdir[2] * spread_base[2]) / pi * 180;
-    if(fabs(m_gamma) < 1){
+    if(fabs(m_gamma) < 1) {
         angle_to_cart(x->x_azi + 90, 0, spread_base);
         m_gamma = acos(vscartdir[0] * spread_base[0] +
             vscartdir[1] * spread_base[1] +
@@ -477,7 +478,7 @@ static void spread_it(t_rvbap *x, t_float *final_gs)
     t_float spreadbase[16][3];
     long i, spreaddirnum;
     t_float power;
-    if(x->x_dimension == 3){
+    if(x->x_dimension == 3) {
         spreaddirnum = 16;
         angle_to_cart(x->x_azi, x->x_ele, vscartdir);
         new_spread_dir(x, spreaddir[0], vscartdir, x->x_spread_base);
@@ -505,11 +506,11 @@ static void spread_it(t_rvbap *x, t_float *final_gs)
         for(i=0;i<3;i++) spreadbase[15][i] = (vscartdir[i] + spreadbase[11][i]) / 2.0;
 
         additive_vbap(final_gs, spreaddir[0], x);
-        for(i = 1; i < spreaddirnum; i++){
+        for(i = 1; i < spreaddirnum; i++) {
             new_spread_dir(x, spreaddir[i], vscartdir, spreadbase[i]);
             additive_vbap(final_gs, spreaddir[i], x);
         }
-    } else if(x->x_dimension == 2){
+    } else if(x->x_dimension == 2) {
         spreaddirnum = 6;
 
         angle_to_cart(x->x_azi - x->x_spread,     0, spreaddir[0]);
@@ -521,20 +522,20 @@ static void spread_it(t_rvbap *x, t_float *final_gs)
 
         for(i = 0; i < spreaddirnum; i++)
             additive_vbap(final_gs, spreaddir[i], x);
-    } else
+    } else {
         return;
-
+    }
     if(x->x_spread > 70)
-        for(i = 0; i < x->x_ls_amount; i++){
+        for(i = 0; i < x->x_ls_amount; i++) {
             final_gs[i] += (x->x_spread - 70) / 30.0 * (x->x_spread - 70) / 30.0 * 10.0;
         }
 
-    for(i = 0, power = 0.0; i < x->x_ls_amount; i++){
+    for(i = 0, power = 0.0; i < x->x_ls_amount; i++) {
         power += final_gs[i] * final_gs[i];
     }
 
     power = sqrt(power);
-    for(i = 0; i < x->x_ls_amount; i++){
+    for(i = 0; i < x->x_ls_amount; i++) {
         final_gs[i] /= power;
     }
 }
@@ -548,7 +549,7 @@ static void equal_reverb(t_rvbap *x, t_float *final_gs)
     t_float spreaddir[16][3];
     long i, spreaddirnum;
     t_float power;
-    if(x->x_dimension == 3){
+    if(x->x_dimension == 3) {
         spreaddirnum = 5;
 
             // horizontal plane
@@ -560,10 +561,10 @@ static void equal_reverb(t_rvbap *x, t_float *final_gs)
         angle_to_cart(0,  90, spreaddir[3]);
         angle_to_cart(0, -90, spreaddir[4]);
 
-        for(i = 1; i < spreaddirnum; i++){
+        for(i = 1; i < spreaddirnum; i++) {
             additive_vbap(x->x_reverb_gs, spreaddir[i], x);
         }
-    } else if(x->x_dimension == 2){
+    } else if(x->x_dimension == 2) {
             // for 2-D we calculate virtual sources
             // every 45 degrees in a horizontal plane
         spreaddirnum = 7;
@@ -578,15 +579,15 @@ static void equal_reverb(t_rvbap *x, t_float *final_gs)
 
         for(i = 0; i < spreaddirnum; i++)
             additive_vbap(x->x_reverb_gs, spreaddir[i], x);
-    } else
+    } else {
         return;
-
-    for(i = 0, power = 0.0; i < x->x_ls_amount; i++){
+    }
+    for(i = 0, power = 0.0; i < x->x_ls_amount; i++) {
         power += x->x_reverb_gs[i] * x->x_reverb_gs[i];
     }
 
     power = sqrt(power);
-    for(i = 0; i < x->x_ls_amount; i++){
+    for(i = 0; i < x->x_ls_amount; i++) {
         final_gs[i] /= power;
     }
 }
@@ -606,20 +607,20 @@ static void rvbap_bang(t_rvbap *x)
     if(x->x_dist < 1.0) {x->x_dist = 1.0;}
 #endif
 
-    if(x->x_lsset_available == 1){
+    if(x->x_lsset_available == 1) {
         vbap(g, ls, x);
         for(i = 0; i < x->x_ls_amount; i++)
             final_gs[i] = 0.0;
-        for(i = 0; i < x->x_dimension; i++){
+        for(i = 0; i < x->x_dimension; i++) {
             final_gs[ls[i]-1] = g[i];
         }
-        if(x->x_spread != 0){
+        if(x->x_spread != 0) {
             spread_it(x, final_gs);
         }
         overdist = 1 / x->x_dist;
         oversqrtdist = 1 / sqrt(x->x_dist);
             // build output for every loudspeaker
-        for(i = 0; i < x->x_ls_amount; i++){
+        for(i = 0; i < x->x_ls_amount; i++) {
                 // first, we output the gains for the direct (unreverberated) signals
                 // these just decrease as the distance increases
 #ifdef MAXMSP
@@ -682,13 +683,13 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
 
     if(ac > 0)
 #ifdef MAXMSP
-        if(av[datapointer].a_type == A_LONG){
+        if(av[datapointer].a_type == A_LONG) {
             x->x_dimension = av[datapointer++].a_w.w_long;
             x->x_lsset_available = 1;
         } else
 #endif
         {
-            if(av[datapointer].a_type == A_FLOAT){
+            if(av[datapointer].a_type == A_FLOAT) {
                 x->x_dimension = (long)av[datapointer++].a_w.w_float;
                 x->x_lsset_available = 1;
             } else {
@@ -698,7 +699,7 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
             }
         //post("%d",deb++);
         }
-    if(ac > 1)
+    if(ac > 1) {
 #ifdef MAXMSP
         if(av[datapointer].a_type == A_LONG)
             x->x_ls_amount = av[datapointer++].a_w.w_long;
@@ -711,8 +712,9 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
                 x->x_lsset_available = 0;
                 return;
             }
-    else
+    } else {
         x->x_lsset_available = 0;
+    }
 
     if(x->x_dimension == 3)
         counter = (ac - 2) / ((x->x_dimension * x->x_dimension*2) + x->x_dimension);
@@ -720,14 +722,14 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
         counter = (ac - 2) / ((x->x_dimension * x->x_dimension) + x->x_dimension);
     x->x_lsset_amount = counter;
 
-    if(counter <= 0){
+    if(counter <= 0) {
         pd_error(x, "rvbap: Error in loudspeaker data!");
         x->x_lsset_available = 0;
         return;
     }
 
-    while(counter-- > 0){
-        for(i = 0; i < x->x_dimension; i++){
+    while(counter-- > 0) {
+        for(i = 0; i < x->x_dimension; i++) {
 #ifdef MAXMSP
             if(av[datapointer].a_type == A_LONG)
 #endif
@@ -743,8 +745,8 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
                     return;
                 }
         }
-        for(i = 0; i < x->x_dimension * x->x_dimension; i++){
-            if(av[datapointer].a_type == A_FLOAT){
+        for(i = 0; i < x->x_dimension * x->x_dimension; i++) {
+            if(av[datapointer].a_type == A_FLOAT) {
                 x->x_set_inv_matx[setpointer][i] = av[datapointer++].a_w.w_float;
             }
             else {
@@ -753,9 +755,9 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
                 return;
             }
         }
-        if(x->x_dimension == 3){
-            for(i = 0; i < x->x_dimension * x->x_dimension; i++){
-                if(av[datapointer].a_type == A_FLOAT){
+        if(x->x_dimension == 3) {
+            for(i = 0; i < x->x_dimension * x->x_dimension; i++) {
+                if(av[datapointer].a_type == A_FLOAT) {
                     x->x_set_matx[setpointer][i] = av[datapointer++].a_w.w_float;
                 }
                 else {
@@ -770,10 +772,10 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
         // now configure static reverb correction values...
     x->x_azi = x->x_ele = 0;
     vbap(g, ls, x);
-    for(i = 0; i < x->x_ls_amount; i++){
+    for(i = 0; i < x->x_ls_amount; i++) {
         x->x_reverb_gs[i] = 0.0;
     }
-    for(i = 0; i < x->x_dimension; i++){
+    for(i = 0; i < x->x_dimension; i++) {
         x->x_reverb_gs[ls[i]-1] = g[i];
         // post("reverb gs #%d = %f", i, x->x_reverb_gs[i]);
     }
@@ -892,7 +894,7 @@ static void *rvbap_new(t_symbol *s, int ac, t_atom *av)
     x->x_spread_base[2] = 0.0;
     x->x_spread = 0;
     x->x_lsset_available = 0;
-    if(ac > 0){
+    if(ac > 0) {
 #ifdef MAXMSP
         if(av[0].a_type == A_LONG)
             x->x_azi = av[0].a_w.w_long;
@@ -901,7 +903,7 @@ static void *rvbap_new(t_symbol *s, int ac, t_atom *av)
             if(av[0].a_type == A_FLOAT)
                 x->x_azi = av[0].a_w.w_float;
     }
-    if(ac > 1){
+    if(ac > 1) {
 #ifdef MAXMSP
         if(av[1].a_type == A_LONG)
             x->x_ele = av[1].a_w.w_long;
@@ -910,7 +912,7 @@ static void *rvbap_new(t_symbol *s, int ac, t_atom *av)
             if(av[1].a_type == A_FLOAT)
                 x->x_ele = av[1].a_w.w_float;
     }
-    if(ac > 2){
+    if(ac > 2) {
 #ifdef MAXMSP
         if(av[2].a_type == A_LONG)
             x->x_dist = (float)av[2].a_w.w_long;
