@@ -358,7 +358,7 @@ static void additive_vbap(t_float *final_gs, t_float cartdir[3], t_rvbap *x)
     t_float big_sm_g, gtmp[3];
     long dim = x->x_dimension;
     long neg_g_am, best_neg_g_am;
-    t_float g[3];
+    t_float g[3] = {0., 0., 0.};
     long ls[3] = {0, 0, 0};
 
     big_sm_g = -100000.0;
@@ -599,6 +599,7 @@ static void rvbap_bang(t_rvbap *x)
     long ls[3];
     long i;
     t_float *final_gs, overdist, oversqrtdist;
+    return;
     final_gs = (t_float *) getbytes(x->x_ls_amount * sizeof(t_float));
 
 #ifdef PD
@@ -675,8 +676,8 @@ static void rvbap_matrix(t_rvbap *x, t_symbol *s, int ac, t_atom *av)
     long setpointer = 0;
     long i;
     long azi = x->x_azi, ele = x->x_ele; // store original values
-    t_float g[3];
-    long ls[3];
+    t_float g[3] = {0.,0.,0.};
+    long ls[3] = {0,0,0};
     (void)s;
 
     if(ac > 0)
